@@ -982,11 +982,19 @@
             const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
             return diffDays;
         }
+        function calculateDayz() {
+            const startDate = new Date('2026-01-01');
+            const today = new Date();
+            const diffTime = Math.abs(today - startDate);
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+            return diffDays;
+        }
 
         function updateDaysCounter() {
             const days = calculateDays();
+            const dayz = calculateDays();
             document.getElementById('days-counter').textContent = days;
-            document.getElementById('days-achievements').textContent = days;
+            document.getElementById('days-achievements').textContent = dayz;
             document.getElementById('sidebar-days').textContent = days;
         }
 
