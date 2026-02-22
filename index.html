@@ -1,1365 +1,1224 @@
 <!DOCTYPE html>
 <html lang="ru">
-
-<script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-app.js";
-  import { getFirestore, collection, addDoc, getDocs, query, orderBy, deleteDoc, doc, onSnapshot, updateDoc } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-firestore.js";
-
-  const firebaseConfig = {
-    apiKey: "AIzaSyDtm97uLN6K4kykEGJ4lveGPgsDkb4CAl4",
-    authDomain: "nbcweb-6e214.firebaseapp.com",
-    projectId: "nbcweb-6e214",
-    storageBucket: "nbcweb-6e214.firebasestorage.app",
-    messagingSenderId: "351857249748",
-    appId: "1:351857249748:web:d4a17a8cc28cc034289a41"
-  };
-
-
-  const app = initializeApp(firebaseConfig);
-  const db = getFirestore(app);
-  window.addComment = async function() {
-    const name = document.getElementById('commentName').value.trim() || 'Аноним';
-    const text = document.getElementById('commentText').value.trim();
-    
-    if (!text) { alert('Введите текст!'); return; }
-
-    await addDoc(collection(db, "comments"), {
-      name: name,
-      text: text,
-      date: new Date().toISOString()
-    });
-
-    document.getElementById('commentName').value = '';
-    document.getElementById('commentText').value = '';
-    renderComments();
-    alert('✅ Отправлено!');
-  };
-
-  // Загрузка комментариев
-  window.renderComments = async function() {
-    const q = query(collection(db, "comments"), orderBy("date", "desc"));
-    const snapshot = await getDocs(q);
-    const container = document.getElementById('commentsList');
-    
-    if (snapshot.empty) {
-      container.innerHTML = '<div class="no-comments"><p>🤔 Пока нет комментариев</p></div>';
-      return;
-    }
-
-    container.innerHTML = snapshot.docs.map(docSnap => {
-      const c = docSnap.data();
-      return `
-        <div class="comment-item">
-          <div class="comment-header">
-            <span class="comment-author">👤 ${c.name}</span>
-            <span class="comment-date">${new Date(c.date).toLocaleString('ru-RU')}</span>
-          </div>
-          <div class="comment-text">${c.text}</div>
-        </div>
-      `;
-    }).join('');
-  };
-
-  // Автозагрузка при старте
-  document.addEventListener('DOMContentLoaded', renderComments);
-// ==================== ГОРОДА FIREBASE ====================
-
-// Добавление города
-window.addCity = async function() {
-    const input = document.getElementById('newCityInput');
-    const cityName = input.value.trim();
-    
-    if (!cityName) {
-        showNotification('⚠️ Введите название города!', 'error');
-        return;
-    }
-
-    try {
-        await addDoc(collection(db, "cities"), {
-            name: cityName,
-            visited: false,
-            date: new Date().toISOString()
-        });
-
-        input.value = '';
-        showNotification('🌍 Город добавлен!', 'success');
-    } catch (error) {
-        console.error('Ошибка:', error);
-        showNotification('❌ Ошибка: ' + error.message, 'error');
-    }
-};
-
-// Переключение статуса (посещён/не посещён)
-window.toggleCity = async function(checkbox, cityId) {
-    try {
-        await updateDoc(doc(db, "cities", cityId), {
-            visited: checkbox.checked
-        });
-        updateStats();
-    } catch (error) {
-        console.error('Ошибка:', error);
-        showNotification('❌ Ошибка обновления', 'error');
-    }
-};
-
-// Удаление города
-window.deleteCity = async function(cityId) {
-    if (!confirm('Удалить этот город?')) return;
-    
-    try {
-        await deleteDoc(doc(db, "cities", cityId));
-        showNotification('🗑️ Город удалён!', 'info');
-    } catch (error) {
-        console.error('Ошибка:', error);
-        showNotification('❌ Ошибка при удалении', 'error');
-    }
-};
-
-// Загрузка городов в реальном времени
-function loadCities() {
-    const q = query(collection(db, "cities"), orderBy("date", "desc"));
-    
-    onSnapshot(q, (snapshot) => {
-        const visitedContainer = document.getElementById('visitedCities');
-        const toVisitContainer = document.getElementById('toVisitCities');
-        
-        visitedContainer.innerHTML = '';
-        toVisitContainer.innerHTML = '';
-        
-        let visitedCount = 0;
-        let toVisitCount = 0;
-
-        snapshot.docs.forEach(docSnap => {
-            const city = docSnap.data();
-            const cityId = docSnap.id;
-            
-            const cityItem = document.createElement('div');
-            cityItem.className = `city-item ${city.visited ? 'checked' : ''}`;
-            cityItem.innerHTML = `
-                <input type="checkbox" ${city.visited ? 'checked' : ''} onchange="toggleCity(this, '${cityId}')">
-                <span>${escapeHtml(city.name)}</span>
-                <button class="delete-btn" onclick="deleteCity('${cityId}')">🗑️</button>
-            `;
-            
-            if (city.visited) {
-                visitedContainer.appendChild(cityItem);
-                visitedCount++;
-            } else {
-                toVisitContainer.appendChild(cityItem);
-                toVisitCount++;
-            }
-        });
-
-        // Обновляем статистику
-        document.getElementById('totalCities').innerText = visitedCount + toVisitCount;
-        document.getElementById('visitedCount').innerText = visitedCount;
-        document.getElementById('toVisitCount').innerText = toVisitCount;
-    }, (error) => {
-        console.error('Ошибка загрузки городов:', error);
-    });
-}
-
-// Автозагрузка при старте
-document.addEventListener('DOMContentLoaded', loadCities);
-</script>
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>НБЦ — Ненавижу Блядь Цыган</title>
+    <title>НБЦ | Официальный сайт</title>
+    
+    <!-- ==================== СТИЛИ ==================== -->
     <style>
-        /* ==================== БАЗОВЫЕ СТИЛИ ==================== */
+        :root {
+            --bg-color: #F5F5F7;
+            --sidebar-bg: #FFFFFF;
+            --card-bg: #FFFFFF;
+            --primary-color: #0F3C5F;
+            --accent-color: #B8860B;
+            --text-main: #1D1D1F;
+            --text-secondary: #86868B;
+            --border-color: #E5E5EA;
+            --radius: 14px;
+            --shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+            --success-color: #34C759;
+            --danger-color: #FF3B30;
+        }
+
         * {
+            box-sizing: border-box;
             margin: 0;
             padding: 0;
-            box-sizing: border-box;
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #00BFFF 0%, #0099FF 25%, #0077FF 50%, #0066CC 75%, #0055AA 100%);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background: var(--bg-color);
+            color: var(--text-main);
             min-height: 100vh;
-            background-attachment: fixed;
         }
 
-        /* ==================== ШАПКА ==================== */
-        header {
-            background: linear-gradient(90deg, #0a0a1a 0%, #1a1a3e 50%, #0a0a1a 100%);
-            padding: 35px 20px;
-            text-align: center;
-            border-bottom: 5px solid #FFD700;
-            box-shadow: 0 6px 25px rgba(0,0,0,0.5);
-            position: relative;
-            overflow: hidden;
+        /* ==================== МАКЕТ ==================== */
+        .layout {
+            display: grid;
+            grid-template-columns: 260px 1fr 280px;
+            gap: 20px;
+            max-width: 1400px;
+            margin: 0 auto;
+            min-height: 100vh;
         }
 
-        header::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255,215,0,0.1), transparent);
-            animation: shine 3s infinite;
-        }
-
-        @keyframes shine {
-            0% { left: -100%; }
-            100% { left: 100%; }
-        }
-
-        header h1 {
-            color: #FFD700;
-            font-size: 4em;
-            text-transform: uppercase;
-            letter-spacing: 10px;
-            text-shadow: 3px 3px 6px rgba(0,0,0,0.7),
-                         0 0 30px rgba(255, 215, 0, 0.6);
-            margin-bottom: 10px;
-            position: relative;
-            z-index: 1;
-        }
-
-        header .subtitle {
-            color: #ffffff;
-            font-size: 1.4em;
-            letter-spacing: 5px;
-            position: relative;
-            z-index: 1;
-        }
-
-        /* ==================== МЕНЮ ==================== */
-        nav {
-            background: linear-gradient(180deg, #ffffff 0%, #f0f8ff 100%);
-            padding: 18px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        /* ==================== ЛЕВАЯ КОЛОНКА ==================== */
+        .sidebar-left {
+            background: var(--sidebar-bg);
+            padding: 25px 20px;
             position: sticky;
             top: 0;
-            z-index: 100;
+            height: 100vh;
+            overflow-y: auto;
+            border-right: 1px solid var(--border-color);
         }
 
-        nav ul {
-            list-style: none;
-            display: flex;
-            justify-content: center;
-            gap: 25px;
-            flex-wrap: wrap;
-        }
-
-        nav ul li a {
-            color: #0066CC;
+        .logo {
+            font-size: 24px;
+            font-weight: 800;
+            color: var(--primary-color);
+            margin-bottom: 35px;
+            display: block;
             text-decoration: none;
-            font-weight: bold;
-            font-size: 1.15em;
-            padding: 12px 25px;
-            border-radius: 30px;
-            transition: all 0.3s ease;
-            border: 2px solid transparent;
-            display: inline-block;
+            letter-spacing: -0.5px;
         }
 
-        nav ul li a:hover {
-            background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
-            color: #0a0a1a;
-            border-color: #0066CC;
-            transform: translateY(-3px);
-            box-shadow: 0 5px 15px rgba(255,215,0,0.4);
+        .logo span {
+            color: var(--accent-color);
         }
 
-        /* ==================== КОНТЕЙНЕР ==================== */
-        .container {
-            display: flex;
-            flex-wrap: wrap;
-            max-width: 1450px;
-            margin: 30px auto;
-            gap: 25px;
-            padding: 0 25px;
-        }
-
-        /* ==================== КОЛОНКИ ==================== */
-        .column {
-            background: #ffffff;
-            border-radius: 20px;
-            padding: 30px;
-            box-shadow: 0 8px 30px rgba(0,0,0,0.25);
-            border: 4px solid #FFD700;
-        }
-
-        .col-info {
-            flex: 1;
-            min-width: 300px;
-            background: linear-gradient(180deg, #ffffff 0%, #e6f3ff 100%);
-        }
-
-        .col-jokes {
-            flex: 2;
-            min-width: 450px;
-            background: linear-gradient(180deg, #ffffff 0%, #fff9e6 100%);
-        }
-
-        .col-cities {
-            flex: 1;
-            min-width: 300px;
-            background: linear-gradient(180deg, #ffffff 0%, #e6ffe6 100%);
-        }
-
-        /* ==================== ЗАГОЛОВКИ ==================== */
-        .column h2 {
-            color: #0066CC;
-            border-bottom: 4px solid #FFD700;
-            padding-bottom: 12px;
-            margin-bottom: 25px;
-            font-size: 1.6em;
-            text-align: center;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-        }
-
-        .column h3 {
-            color: #1a1a3e;
-            margin: 20px 0 12px 0;
-            font-size: 1.25em;
-            border-left: 4px solid #00BFFF;
-            padding-left: 12px;
-        }
-
-        /* ==================== КОЛОНКА 1 — СОСТАВ ==================== */
-        .squad-info {
-            background: linear-gradient(135deg, #0066CC 0%, #0099FF 100%);
-            color: white;
-            padding: 20px;
-            border-radius: 15px;
-            margin-bottom: 25px;
-            box-shadow: 0 4px 15px rgba(0,102,204,0.4);
-        }
-
-        .squad-info p {
-            margin: 12px 0;
-            line-height: 1.7;
-        }
-
-        .members-list {
+        .nav-menu {
             list-style: none;
         }
 
-        .members-list li {
-            background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
-            color: #0a0a1a;
-            padding: 12px 18px;
-            margin: 10px 0;
-            border-radius: 10px;
-            font-weight: bold;
+        .nav-menu li {
+            margin-bottom: 6px;
+        }
+
+        .nav-menu a {
             display: flex;
             align-items: center;
-            gap: 12px;
-            transition: transform 0.3s ease;
+            padding: 11px 14px;
+            color: var(--text-main);
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 500;
+            font-size: 14px;
+            transition: all 0.2s;
         }
 
-        .members-list li:hover {
-            transform: translateX(5px);
+        .nav-menu a:hover {
+            background: var(--bg-color);
+            color: var(--primary-color);
         }
 
-        .members-list li::before {
-            content: "🎪";
-            font-size: 1.3em;
+        .nav-menu a.active {
+            background: var(--primary-color);
+            color: white;
         }
 
-        /* ==================== КОЛОНКА 2 — АНЕКДОТЫ ==================== */
-        .joke-card {
-            background: #fff;
-            border: 3px solid #0066CC;
-            border-radius: 15px;
+        /* ==================== ЦЕНТРАЛЬНАЯ КОЛОНКА ==================== */
+        .main-content {
+            padding: 30px 20px;
+            max-width: 900px;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border-radius: var(--radius);
             padding: 25px;
-            margin-bottom: 25px;
-            position: relative;
-            transition: all 0.3s ease;
-        }
-
-        .joke-card:hover {
-            transform: scale(1.02);
-            box-shadow: 0 8px 25px rgba(0,102,204,0.35);
-        }
-
-        .joke-card .joke-number {
-            position: absolute;
-            top: -15px;
-            left: -15px;
-            background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
-            color: #0a0a1a;
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-            font-size: 1.3em;
-            border: 4px solid #0066CC;
-            box-shadow: 0 3px 10px rgba(0,0,0,0.3);
-        }
-
-        .joke-card p {
-            line-height: 1.9;
-            color: #333;
-            font-size: 1.1em;
-            white-space: pre-line;
-        }
-
-        .joke-controls {
-            display: flex;
-            gap: 12px;
-            margin-top: 20px;
-            flex-wrap: wrap;
-        }
-
-        .joke-controls button {
-            padding: 10px 20px;
-            border: none;
-            border-radius: 25px;
-            cursor: pointer;
-            font-weight: bold;
-            transition: all 0.3s ease;
-            font-size: 0.95em;
-        }
-
-        .btn-next {
-            background: linear-gradient(135deg, #0066CC 0%, #0099FF 100%);
-            color: white;
-        }
-
-        .btn-next:hover {
-            background: linear-gradient(135deg, #0055AA 0%, #0077DD 100%);
-            transform: translateY(-2px);
-        }
-
-        .btn-copy {
-            background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
-            color: #0a0a1a;
-        }
-
-        .btn-copy:hover {
-            background: linear-gradient(135deg, #E6C200 0%, #E69500 100%);
-            transform: translateY(-2px);
-        }
-
-        .btn-like {
-            background: linear-gradient(135deg, #ff6b6b 0%, #ff4757 100%);
-            color: white;
-        }
-
-        .btn-like.liked {
-            background: linear-gradient(135deg, #ff4757 0%, #ff3838 100%);
-        }
-
-        .btn-refresh {
-            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
-            color: white;
-        }
-
-        .btn-refresh:hover {
-            background: linear-gradient(135deg, #218838 0%, #1aa179 100%);
-            transform: translateY(-2px);
-        }
-
-        .api-info {
-            background: #fff3cd;
-            border: 2px solid #FFA500;
-            border-radius: 10px;
-            padding: 15px;
             margin-bottom: 20px;
-            font-size: 0.9em;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border-color);
         }
 
-        .api-info strong {
-            color: #856404;
-        }
-
-        /* ==================== КОЛОНКА 3 — ГОРОДА ==================== */
-        .cities-section {
-            margin-bottom: 25px;
-        }
-
-        .cities-section.visited {
-            border-bottom: 4px dashed #FFD700;
-            padding-bottom: 25px;
-        }
-
-        .city-item {
+        .card-header {
             display: flex;
             align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid var(--bg-color);
+        }
+
+        .card-title {
+            font-size: 19px;
+            font-weight: 700;
+            color: var(--primary-color);
+        }
+
+        /* ==================== УЧАСТНИКИ ==================== */
+        .members-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
             gap: 12px;
-            padding: 12px 15px;
-            margin: 8px 0;
-            background: linear-gradient(180deg, #f8f9fa 0%, #e9ecef 100%);
+        }
+
+        .member-item {
+            background: var(--bg-color);
+            padding: 14px;
             border-radius: 10px;
-            transition: all 0.3s ease;
+            text-align: center;
+            transition: transform 0.2s, border-color 0.2s;
             border: 2px solid transparent;
         }
 
-        .city-item:hover {
-            background: linear-gradient(180deg, #e9ecef 0%, #dee2e6 100%);
-            transform: translateX(5px);
-            border-color: #0066CC;
+        .member-item:hover {
+            transform: translateY(-2px);
+            border-color: var(--accent-color);
         }
 
-        .city-item input[type="checkbox"] {
-            width: 22px;
-            height: 22px;
-            cursor: pointer;
-            accent-color: #0066CC;
+        .member-name {
+            font-weight: 600;
+            color: var(--primary-color);
+            display: block;
+            margin-bottom: 4px;
+            font-size: 14px;
         }
 
-        .city-item span {
-            flex: 1;
-            font-weight: 500;
+        .member-city {
+            font-size: 12px;
+            color: var(--text-secondary);
         }
 
-        .city-item .delete-btn {
-            background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
-            color: white;
-            border: none;
-            width: 30px;
-            height: 30px;
-            border-radius: 50%;
-            cursor: pointer;
-            font-size: 1.1em;
+        /* ==================== СТАТИСТИКА ==================== */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+        }
+
+        .stat-box {
+            background: var(--bg-color);
+            padding: 18px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--accent-color);
+            display: block;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-top: 6px;
+        }
+
+        /* ==================== АНЕКДОТЫ ==================== */
+        .joke-container {
+            background: var(--bg-color);
+            padding: 18px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+        }
+
+        .joke-text {
+            font-size: 15px;
+            line-height: 1.6;
+            margin-bottom: 15px;
+            color: var(--text-main);
+            min-height: 80px;
+        }
+
+        .joke-actions {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        /* ==================== СТРЕЛОЧКИ РЕЙТИНГА ==================== */
+        .joke-rating {
             display: flex;
             align-items: center;
-            justify-content: center;
-            transition: all 0.3s ease;
-            opacity: 0.7;
-        }
-
-        .city-item .delete-btn:hover {
-            opacity: 1;
-            transform: scale(1.15);
-            box-shadow: 0 3px 10px rgba(220,53,69,0.4);
-        }
-
-        .city-item.checked {
-            background: linear-gradient(180deg, #d4edda 0%, #c3e6cb 100%);
-            border-left: 5px solid #28a745;
-        }
-
-        .city-item.checked span {
-            text-decoration: line-through;
-            color: #6c757d;
-        }
-
-        .add-city-form {
-            display: flex;
             gap: 12px;
-            margin-top: 18px;
+            margin-left: auto;
         }
 
-        .add-city-form input {
-            flex: 1;
-            padding: 12px 15px;
-            border: 3px solid #0066CC;
-            border-radius: 10px;
-            font-size: 1em;
-            transition: all 0.3s ease;
-        }
-
-        .add-city-form input:focus {
-            outline: none;
-            border-color: #FFD700;
-            box-shadow: 0 0 10px rgba(0,102,204,0.3);
-        }
-
-        .add-city-form button {
-            padding: 12px 25px;
-            background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+        .rating-btn {
+            background: none;
             border: none;
-            border-radius: 10px;
             cursor: pointer;
-            font-weight: bold;
-            font-size: 1.1em;
-            transition: all 0.3s ease;
+            padding: 6px 10px;
+            border-radius: 6px;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 13px;
+            font-weight: 600;
         }
 
-        .add-city-form button:hover {
-            background: linear-gradient(135deg, #E6C200 0%, #E69500 100%);
-            transform: scale(1.08);
+        .rating-btn.up {
+            color: var(--success-color);
         }
 
-        .stats {
-            background: linear-gradient(135deg, #0066CC 0%, #0099FF 100%);
-            color: white;
+        .rating-btn.up:hover {
+            background: rgba(52, 199, 89, 0.1);
+        }
+
+        .rating-btn.down {
+            color: var(--danger-color);
+        }
+
+        .rating-btn.down:hover {
+            background: rgba(255, 59, 48, 0.1);
+        }
+
+        .rating-btn svg {
+            width: 18px;
+            height: 18px;
+            stroke-width: 2.5;
+        }
+
+        .rating-count {
+            font-size: 14px;
+            min-width: 20px;
+            text-align: center;
+        }
+
+        /* ==================== ФОРМА ДОБАВЛЕНИЯ АНЕКДОТА ==================== */
+        .add-joke-form {
+            background: var(--bg-color);
             padding: 20px;
-            border-radius: 15px;
-            text-align: center;
-            margin-top: 25px;
-            box-shadow: 0 4px 15px rgba(0,102,204,0.4);
+            border-radius: 10px;
+            margin-top: 20px;
         }
 
-        .stats .number {
-            font-size: 2.5em;
-            font-weight: bold;
-            color: #FFD700;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        .add-joke-form h4 {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--primary-color);
+            margin-bottom: 12px;
         }
 
-        /* ==================== ФОРУМ/КОММЕНТАРИИ ==================== */
-        .forum-section {
-            max-width: 1450px;
-            margin: 30px auto;
-            padding: 0 25px;
+        /* ==================== КНОПКИ ==================== */
+        .btn {
+            padding: 9px 16px;
+            border: none;
+            border-radius: 7px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 500;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
         }
 
-        .forum-container {
-            background: #ffffff;
-            border-radius: 20px;
-            padding: 35px;
-            box-shadow: 0 8px 30px rgba(0,0,0,0.25);
-            border: 4px solid #FFD700;
+        .btn-primary {
+            background: var(--primary-color);
+            color: white;
         }
 
-        .forum-container h2 {
-            color: #0066CC;
-            border-bottom: 4px solid #FFD700;
-            padding-bottom: 12px;
-            margin-bottom: 25px;
-            font-size: 1.6em;
-            text-align: center;
-            text-transform: uppercase;
-            letter-spacing: 2px;
+        .btn-secondary {
+            background: white;
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
         }
 
-        .comment-form {
-            background: linear-gradient(180deg, #f8f9fa 0%, #e9ecef 100%);
-            padding: 25px;
-            border-radius: 15px;
-            margin-bottom: 30px;
-            border: 3px solid #0066CC;
+        .btn-danger {
+            background: #FF3B30;
+            color: white;
         }
 
-        .comment-form h3 {
-            color: #1a1a3e;
-            margin-bottom: 15px;
-            font-size: 1.2em;
+        .btn-success {
+            background: #34C759;
+            color: white;
         }
 
+        .btn:hover {
+            opacity: 0.9;
+            transform: translateY(-1px);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn-icon {
+            padding: 5px 8px;
+            font-size: 11px;
+            min-width: auto;
+        }
+
+        .btn-small {
+            padding: 8px 12px;
+            font-size: 13px;
+        }
+
+        /* ==================== ФОРУМ ==================== */
         .form-group {
-            margin-bottom: 15px;
+            margin-bottom: 14px;
         }
 
         .form-group label {
             display: block;
-            margin-bottom: 8px;
-            font-weight: bold;
-            color: #0066CC;
+            margin-bottom: 6px;
+            font-size: 13px;
+            color: var(--text-secondary);
+            font-weight: 500;
         }
 
-        .form-group input,
-        .form-group textarea {
+        .form-input,
+        .form-textarea {
             width: 100%;
-            padding: 12px 15px;
-            border: 2px solid #0066CC;
-            border-radius: 10px;
-            font-size: 1em;
+            padding: 11px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
             font-family: inherit;
-            transition: all 0.3s ease;
+            font-size: 14px;
+            transition: border-color 0.2s;
         }
 
-        .form-group input:focus,
-        .form-group textarea:focus {
+        .form-input:focus,
+        .form-textarea:focus {
             outline: none;
-            border-color: #FFD700;
-            box-shadow: 0 0 10px rgba(255,215,0,0.3);
+            border-color: var(--primary-color);
         }
 
-        .form-group textarea {
-            min-height: 120px;
+        .form-textarea {
             resize: vertical;
+            min-height: 90px;
         }
 
-        .submit-btn {
-            background: linear-gradient(135deg, #0066CC 0%, #0099FF 100%);
+        /* ==================== ПРАВАЯ КОЛОНКА ==================== */
+        .sidebar-right {
+            padding: 30px 0;
+            position: sticky;
+            top: 0;
+            height: fit-content;
+        }
+
+        .info-card {
+            background: var(--card-bg);
+            border-radius: var(--radius);
+            padding: 18px;
+            margin-bottom: 18px;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border-color);
+        }
+
+        .info-title {
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin-bottom: 14px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--bg-color);
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 7px 0;
+            border-bottom: 1px solid var(--bg-color);
+            font-size: 13px;
+        }
+
+        .info-row:last-child {
+            border-bottom: none;
+        }
+
+        .info-label {
+            color: var(--text-secondary);
+        }
+
+        .info-value {
+            font-weight: 600;
+            color: var(--text-main);
+        }
+
+        .badge {
+            background: var(--accent-color);
             color: white;
-            border: none;
-            padding: 14px 35px;
-            border-radius: 25px;
-            font-size: 1.1em;
-            font-weight: bold;
-            cursor: pointer;
-            transition: all 0.3s ease;
+            padding: 3px 9px;
+            border-radius: 10px;
+            font-size: 11px;
+            font-weight: 600;
         }
 
-        .submit-btn:hover {
-            background: linear-gradient(135deg, #0055AA 0%, #0077DD 100%);
-            transform: translateY(-3px);
-            box-shadow: 0 5px 15px rgba(0,102,204,0.4);
-        }
-
-        .comments-list {
-            max-height: 500px;
+        /* ==================== СПИСКИ ==================== */
+        .item-list {
+            list-style: none;
+            max-height: 300px;
             overflow-y: auto;
         }
 
-        .comment-item {
-            background: linear-gradient(180deg, #ffffff 0%, #f8f9fa 100%);
-            border: 2px solid #e9ecef;
-            border-radius: 12px;
-            padding: 20px;
-            margin-bottom: 15px;
-            transition: all 0.3s ease;
-            border-left: 5px solid #0066CC;
-        }
-
-        .comment-item:hover {
-            border-left-color: #FFD700;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-        }
-
-        .comment-header {
+        .item-list li {
+            padding: 10px 0;
+            border-bottom: 1px solid var(--bg-color);
             display: flex;
+            align-items: center;
             justify-content: space-between;
-            align-items: center;
-            margin-bottom: 12px;
-            padding-bottom: 10px;
-            border-bottom: 2px dashed #e9ecef;
+            gap: 10px;
+            font-size: 13px;
         }
 
-        .comment-author {
-            font-weight: bold;
-            color: #0066CC;
-            font-size: 1.1em;
+        .item-list li:last-child {
+            border-bottom: none;
+        }
+
+        .item-name {
+            flex: 1;
+            color: var(--text-main);
+        }
+
+        .item-actions {
             display: flex;
-            align-items: center;
+            gap: 6px;
+            flex-shrink: 0;
+        }
+
+        .add-form {
+            display: flex;
             gap: 8px;
+            margin-top: 12px;
         }
 
-        .comment-author::before {
-            content: "👤";
+        .add-form input {
+            flex: 1;
+            padding: 8px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 7px;
+            font-size: 13px;
         }
 
-        .comment-date {
-            color: #6c757d;
-            font-size: 0.85em;
-        }
-
-        .comment-text {
-            color: #333;
-            line-height: 1.7;
-            white-space: pre-wrap;
-        }
-
-        .comment-delete {
-            background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
-            color: white;
-            border: none;
-            padding: 6px 12px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 0.85em;
-            transition: all 0.3s ease;
-            margin-top: 10px;
-        }
-
-        .comment-delete:hover {
-            background: linear-gradient(135deg, #c82333 0%, #bd2130 100%);
-            transform: scale(1.05);
-        }
-
-        .no-comments {
+        /* ==================== FOOTER ==================== */
+        .footer {
             text-align: center;
-            color: #6c757d;
-            font-style: italic;
-            padding: 30px;
-            background: #f8f9fa;
-            border-radius: 10px;
+            padding: 25px;
+            color: var(--text-secondary);
+            font-size: 12px;
+            border-top: 1px solid var(--border-color);
+            margin-top: 20px;
         }
 
-        .forum-notice {
-            background: #fff3cd;
-            border: 2px solid #FFA500;
-            border-radius: 10px;
-            padding: 15px;
-            margin-bottom: 20px;
-            font-size: 0.9em;
-            color: #856404;
-        }
-
-        /* ==================== ПОДВАЛ ==================== */
-        footer {
-            background: linear-gradient(90deg, #0a0a1a 0%, #1a1a3e 50%, #0a0a1a 100%);
-            color: white;
+        .empty-state {
             text-align: center;
-            padding: 30px;
-            margin-top: 50px;
-            border-top: 5px solid #FFD700;
-        }
-
-        footer p {
-            margin: 8px 0;
-        }
-
-        footer .emoji {
-            font-size: 1.8em;
-            margin-bottom: 10px;
+            padding: 20px;
+            color: var(--text-secondary);
+            font-size: 13px;
         }
 
         /* ==================== АДАПТИВНОСТЬ ==================== */
-        @media (max-width: 950px) {
-            .container {
-                flex-direction: column;
+        @media (max-width: 1200px) {
+            .layout {
+                grid-template-columns: 240px 1fr;
             }
-            
-            .col-info, .col-jokes, .col-cities {
-                flex: none;
-                width: 100%;
-            }
-
-            header h1 {
-                font-size: 2.8em;
-                letter-spacing: 5px;
-            }
-
-            nav ul {
-                gap: 12px;
-            }
-
-            nav ul li a {
-                padding: 10px 18px;
-                font-size: 1em;
+            .sidebar-right {
+                display: none;
             }
         }
 
-        /* ==================== АНИМАЦИИ ==================== */
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(30px); }
-            to { opacity: 1; transform: translateY(0); }
+        @media (max-width: 768px) {
+            .layout {
+                grid-template-columns: 1fr;
+            }
+            .sidebar-left {
+                position: relative;
+                height: auto;
+                border-right: none;
+                border-bottom: 1px solid var(--border-color);
+            }
+            .nav-menu {
+                display: flex;
+                overflow-x: auto;
+                gap: 8px;
+                padding-bottom: 10px;
+            }
+            .nav-menu li {
+                margin-bottom: 0;
+                flex-shrink: 0;
+            }
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            .joke-rating {
+                margin-left: 0;
+                margin-top: 10px;
+            }
         }
 
-        .column, .forum-container {
-            animation: fadeIn 0.7s ease-out;
-        }
-
-        .col-info { animation-delay: 0.1s; }
-        .col-jokes { animation-delay: 0.2s; }
-        .col-cities { animation-delay: 0.3s; }
-        .forum-container { animation-delay: 0.4s; }
-
-        /* Scrollbar styling */
+        /* ==================== СКРОЛЛБАР ==================== */
         ::-webkit-scrollbar {
-            width: 10px;
+            width: 6px;
         }
 
         ::-webkit-scrollbar-track {
-            background: #f1f1f1;
-            border-radius: 10px;
+            background: var(--bg-color);
         }
 
         ::-webkit-scrollbar-thumb {
-            background: linear-gradient(180deg, #0066CC 0%, #0099FF 100%);
-            border-radius: 10px;
+            background: var(--border-color);
+            border-radius: 3px;
         }
 
         ::-webkit-scrollbar-thumb:hover {
-            background: linear-gradient(180deg, #0055AA 0%, #0077DD 100%);
+            background: var(--text-secondary);
         }
     </style>
 </head>
+
 <body>
-
-    <!-- ==================== ШАПКА ==================== -->
-    <header>
-        <h1>👳‍ НБЦ 🔞</h1>
-        <p class="subtitle">НЕНАВИЖУ БЛЯДЬ ЦЫГАН</p>
-    </header>
-
-    <!-- ==================== МЕНЮ ==================== -->
-    <nav>
-        <ul>
-            <li><a href="#info">📋 О нас</a></li>
-            <li><a href="#jokes">😂 Анекдоты</a></li>
-            <li><a href="#cities">🌍 Города</a></li>
-            <li><a href="#forum">💬 Форум</a></li>
-            <li><a href="#gallery">📷 Галерея</a></li>
-            <li><a href="#contacts">📞 Контакты</a></li>
-        </ul>
-    </nav>
-
-    <!-- ==================== ОСНОВНОЙ КОНТЕНТ ==================== -->
-    <div class="container">
+    <div class="layout">
         
-        <!-- КОЛОНКА 1: Информация об отряде -->
-        <div class="column col-info" id="info">
-            <h2>🎭 Наш Отряд</h2>
+        <!-- ==================== ЛЕВАЯ КОЛОНКА ==================== -->
+        <aside class="sidebar-left">
+            <a href="#" class="logo">НБЦ <span>Squad</span></a>
             
-            <div class="squad-info">
-                <p><strong>🎯 Девиз:</strong><br>«Live fast, die young»</p>
-                <p><strong>📅 Основан:</strong><br>2024 год</p>
-                <p><strong>🚀 Дней без инцидентов:</strong> 53 <br></p>
-            </div>
-
-            <h3>👥 Состав отряда</h3>
-            <ul class="members-list">
-                <!-- ✏️ РЕДАКТИРУЙ ЗДЕСЬ СВОИХ ЛЮДЕЙ -->
-                <li>Ваня  [Екатеринбург]</li>
-                <li>Данил [Нягань]</li>
-                <li>Демон [Ханты-Мансийск]</li>
-                <li>Егор  [Екатеринбург]</li>
-                <li>Колян [Екатеринбург]</li>
-                <li>Арсен [Екатеринбург]</li>
+            <ul class="nav-menu">
+                <li><a href="#info" class="active">О нас</a></li>
+                <li><a href="#squad">Состав</a></li>
+                <li><a href="#achievements">Достижения</a></li>
+                <li><a href="#jokes">Анекдоты</a></li>
+                <li><a href="#cities">Города</a></li>
+                <li><a href="#events">События</a></li>
+                <li><a href="#forum">Форум</a></li>
+                <li><a href="#contacts">Контакты</a></li>
             </ul>
+        </aside>
 
-            <div class="squad-info" style="margin-top: 25px; background: linear-gradient(135deg, #1a1a3e 0%, #2a2a5e 100%);">
-                <p><strong>🏆 Достижения:</strong></p>
-                <p>• 1 фильм снят</p>
-                <p>• 8 бутылок водки выпито</p>
-            </div>
-        </div>
-
-        <!-- КОЛОНКА 2: Анекдоты -->
-        <div class="column col-jokes" id="jokes">
-            <h2>😂 Анекдоты Дня</h2>
+        <!-- ==================== ЦЕНТРАЛЬНАЯ КОЛОНКА ==================== -->
+        <main class="main-content">
             
-            <div class="joke-card" id="jokeDisplay">
-                <div class="joke-number" id="jokeNumber">1</div>
-                <p id="jokeText">Загрузка анекдота...</p>
-                <div class="joke-controls">
-                    <button class="btn-next" onclick="nextJoke()">🔄 Следующий</button>
-                    <button class="btn-copy" onclick="copyJoke()">📋 Копировать</button>
-                    <button class="btn-like" id="likeBtn" onclick="toggleLike()">❤️ Нравится</button>
+            <!-- О нас -->
+            <section class="card" id="info">
+                <div class="card-header">
+                    <h2 class="card-title">Наш Отряд</h2>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Девиз</span>
+                    <span class="info-value">«Live fast, die young»</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Основан</span>
+                    <span class="info-value">2024 год</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Дней с момента основания</span>
+                    <span class="info-value" id="days-counter" style="color: var(--accent-color);">0</span>
+                </div>
+            </section>
+
+            <!-- Состав -->
+            <section class="card" id="squad">
+                <div class="card-header">
+                    <h2 class="card-title">Состав отряда</h2>
+                    <span class="badge" id="member-count">6 участников</span>
+                </div>
+                <div class="members-grid" id="members-list">
+                    <div class="member-item">
+                        <span class="member-name">Ваня</span>
+                        <span class="member-city">Екатеринбург</span>
+                    </div>
+                    <div class="member-item">
+                        <span class="member-name">Данил</span>
+                        <span class="member-city">Нягань</span>
+                    </div>
+                    <div class="member-item">
+                        <span class="member-name">Демон</span>
+                        <span class="member-city">Ханты-Мансийск</span>
+                    </div>
+                    <div class="member-item">
+                        <span class="member-name">Егор</span>
+                        <span class="member-city">Екатеринбург</span>
+                    </div>
+                    <div class="member-item">
+                        <span class="member-name">Колян</span>
+                        <span class="member-city">Екатеринбург</span>
+                    </div>
+                    <div class="member-item">
+                        <span class="member-name">Арсен</span>
+                        <span class="member-city">Екатеринбург</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Достижения -->
+            <section class="card" id="achievements">
+                <div class="card-header">
+                    <h2 class="card-title">Достижения</h2>
+                </div>
+                <div class="stats-grid">
+                    <div class="stat-box">
+                        <span class="stat-value">1</span>
+                        <span class="stat-label">Фильмов снято</span>
+                    </div>
+                    <div class="stat-box">
+                        <span class="stat-value">8</span>
+                        <span class="stat-label">Бутылок выпито</span>
+                    </div>
+                    <div class="stat-box">
+                        <span class="stat-value" id="days-achievements">0</span>
+                        <span class="stat-label">Дней без инцидентов</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Анекдоты -->
+            <section class="card" id="jokes">
+                <div class="card-header">
+                    <h2 class="card-title">Анекдот Дня</h2>
+                </div>
+                <div class="joke-container">
+                    <p class="joke-text" id="joke-text">Загрузка...</p>
+                    <div class="joke-actions">
+                        <button class="btn btn-primary" onclick="newJoke()">Следующий</button>
+                        <button class="btn btn-secondary" onclick="copyJoke()">Копировать</button>
+                        <div class="joke-rating">
+                            <button class="rating-btn up" onclick="rateJoke('up')">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M12 19V5M5 12l7-7 7 7"/>
+                                </svg>
+                                <span class="rating-count" id="joke-upvotes">0</span>
+                            </button>
+                            <button class="rating-btn down" onclick="rateJoke('down')">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M12 5v14M5 12l7 7 7-7"/>
+                                </svg>
+                                <span class="rating-count" id="joke-downvotes">0</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Форма добавления анекдота -->
+                <div class="add-joke-form">
+                    <h4>➕ Добавить свой анекдот</h4>
+                    <form onsubmit="submitJoke(event)">
+                        <div class="form-group">
+                            <label>Ваше имя:</label>
+                            <input type="text" id="jokeAuthor" class="form-input" placeholder="Введите имя" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Анекдот:</label>
+                            <textarea id="jokeContent" class="form-textarea" placeholder="Напишите анекдот..." required></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-success">📤 Отправить</button>
+                    </form>
+                </div>
+            </section>
+
+            <!-- Города -->
+            <section class="card" id="cities">
+                <div class="card-header">
+                    <h2 class="card-title">Карта Путешествий</h2>
+                </div>
+                <div class="stats-grid" style="margin-bottom: 20px;">
+                    <div class="stat-box">
+                        <span class="stat-value" id="total-cities">0</span>
+                        <span class="stat-label">Всего городов</span>
+                    </div>
+                    <div class="stat-box">
+                        <span class="stat-value" id="visited-count">0</span>
+                        <span class="stat-label">Посещено</span>
+                    </div>
+                    <div class="stat-box">
+                        <span class="stat-value" id="planned-count">0</span>
+                        <span class="stat-label">В планах</span>
+                    </div>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                    <div>
+                        <p style="font-size: 13px; font-weight: 600; margin-bottom: 10px;">Планируем посетить</p>
+                        <ul class="item-list" id="planned-cities">
+                            <li class="empty-state">Загрузка...</li>
+                        </ul>
+                        <div class="add-form">
+                            <input type="text" id="planned-input" placeholder="Город...">
+                            <button class="btn btn-primary btn-small" onclick="addCity('planned')">+</button>
+                        </div>
+                    </div>
+                    <div>
+                        <p style="font-size: 13px; font-weight: 600; margin-bottom: 10px;">Посещённые города</p>
+                        <ul class="item-list" id="visited-cities">
+                            <li class="empty-state">Загрузка...</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <!-- События -->
+            <section class="card" id="events">
+                <div class="card-header">
+                    <h2 class="card-title">События</h2>
+                </div>
+                <ul class="item-list" id="events-list">
+                    <li class="empty-state">Загрузка...</li>
+                </ul>
+                <div class="add-form" style="margin-top: 15px;">
+                    <input type="text" id="event-input" placeholder="Название события...">
+                    <input type="date" id="event-date" style="width: 140px;">
+                    <button class="btn btn-primary btn-small" onclick="addEvent()">Создать</button>
+                </div>
+            </section>
+
+            <!-- Форум -->
+            <section class="card" id="forum">
+                <div class="card-header">
+                    <h2 class="card-title">Народный Форум</h2>
+                </div>
+                <form id="forum-form" onsubmit="submitMessage(event)">
+                    <div class="form-group">
+                        <label>Ваше имя:</label>
+                        <input type="text" id="commentName" class="form-input" placeholder="Введите имя" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Сообщение:</label>
+                        <textarea id="commentText" class="form-textarea" placeholder="Напишите что-нибудь..." required></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Отправить</button>
+                </form>
+                <div id="messages-container" style="margin-top: 20px;">
+                    <p class="empty-state">Загрузка комментариев...</p>
+                </div>
+            </section>
+
+            <!-- Контакты -->
+            <section class="card" id="contacts">
+                <div class="card-header">
+                    <h2 class="card-title">Контакты</h2>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Telegram</span>
+                    <span class="info-value">@nbc_squad</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">VK</span>
+                    <span class="info-value">vk.com/nbc_squad</span>
+                </div>
+            </section>
+        </main>
+
+        <!-- ==================== ПРАВАЯ КОЛОНКА ==================== -->
+        <aside class="sidebar-right">
+            <div class="info-card">
+                <h3 class="info-title">Статус</h3>
+                <div class="info-row">
+                    <span class="info-label">Статус</span>
+                    <span class="info-value" style="color: #34C759;">Онлайн</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Участников</span>
+                    <span class="info-value">6</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Городов</span>
+                    <span class="info-value" id="sidebar-cities">0</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Событий</span>
+                    <span class="info-value" id="sidebar-events">0</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Анекдотов</span>
+                    <span class="info-value" id="sidebar-jokes">0</span>
                 </div>
             </div>
 
-            <div class="joke-card">
-                <h3>📌 Избранные анекдоты</h3>
-                <div id="likedJokes">
-                    <p style="color: #666; font-style: italic;">Пока нет избранных. Жми «Нравится»!</p>
+            <div class="info-card">
+                <h3 class="info-title">Информация</h3>
+                <div class="info-row">
+                    <span class="info-label">Дата основания</span>
+                    <span class="info-value">09.08.2024</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Дней вместе</span>
+                    <span class="info-value" id="sidebar-days">0</span>
                 </div>
             </div>
-        </div>
-
-        <!-- КОЛОНКА 3: Города -->
-        <div class="column col-cities" id="cities">
-            <h2>🌍 Карта Путешествий</h2>
-
-            <!-- Посещённые города -->
-            <div class="cities-section visited">
-                <h3>✅ Посещённые города</h3>
-                <div id="visitedCities">
-
-                </div>
-            </div>
-
-            <!-- Города для посещения -->
-            <div class="cities-section">
-                <h3>📍 Планируем посетить</h3>
-                <div id="toVisitCities">
-
-                </div>
-
-                <!-- Форма добавления города -->
-                <div class="add-city-form">
-                    <input type="text" id="newCityInput" placeholder="Город, Страна...">
-                    <button onclick="addCity()">➕</button>
-                </div>
-            </div>
-
-            <!-- Статистика -->
-            <div class="stats">
-                <p>🌎 Всего городов</p>
-                <p class="number" id="totalCities">0</p>
-                <p>✅ Посещено: <span id="visitedCount">0</span></p>
-                <p>📍 В планах: <span id="toVisitCount">0</span></p>
-            </div>
-        </div>
-
+        </aside>
     </div>
 
-    <!-- ==================== ФОРУМ/КОММЕНТАРИИ ==================== -->
-    <div class="forum-section" id="forum">
-        <div class="forum-container">
-            <h2>💬 Народный Форум</h2>
-
-            <!-- Форма добавления комментария -->
-            <div class="comment-form">
-                <h3>✍️ Оставить сообщение</h3>
-                <div class="form-group">
-                    <label for="commentName">Ваше имя:</label>
-                    <input type="text" id="commentName" placeholder="Как к вам обращаться?" maxlength="50">
-                </div>
-                <div class="form-group">
-                    <label for="commentText">Сообщение:</label>
-                    <textarea id="commentText" placeholder="Пишите что думаете..." maxlength="1000"></textarea>
-                </div>
-                <button class="submit-btn" onclick="addComment()">📤 Отправить</button>
-            </div>
-
-            <!-- Список комментариев -->
-            <div class="comments-list" id="commentsList">
-                <div class="no-comments">
-                    <p>🤔 Пока нет комментариев</p>
-                    <p>Будь первым кто напишет!</p>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- ==================== ПОДВАЛ ==================== -->
-    <footer id="contacts">
-        <p class="emoji">🎪 🚐 🌍 🍻</p>
-        <p><strong>НБЦ — Ненавижу Блядь Цыган</strong></p>
-        <p>© 1991 Все права защищены </p>
-        <p>Сделано за чекушку</p>
+    <!-- ==================== FOOTER ==================== -->
+    <footer class="footer">
+        <p>НБЦ Squad © 2026 Все права защищены</p>
+        <p style="margin-top: 5px; opacity: 0.6;">Сделано за чекушку</p>
     </footer>
 
-    <!-- ==================== JAVASCRIPT ==================== -->
-    <script>
-        // ==================== АНЕКДОТЫ ====================
-        let jokes = [
-            "— Алло, это полиция? У меня украли велосипед!\n— Где?\n— Да вот, у подъезда стоял.\n— А вы его пристёгивали?\n— Да я его еле дотащил!",
-            "Объявление: «Продам гараж. В гараже машина. В машине кот. Кот не продаётся».",
-            "— Пап, а почему ты всегда споришь с мамой?\n— Сынок, когда два человека спорят, тот, кто прав, должен помолчать.",
-            "Сидят два программиста. Один говорит:\n— Слушай, а ты знал, что 6 боится 7?\n— Почему?\n— Потому что 7 8 9!\nВторой молчит, потом говорит:\n— Ты вообще понимаешь, что сказал?\n— А что?\n— 7 съела 9. Это каннибализм!",
-            "— Доктор, у меня постоянно болит правый бок.\n— А вы пробовали не бить себя по нему?\n— Пробовал, но тогда болит левый!",
-            "Жена мужу:\n— Дорогой, ты меня любишь?\n— Конечно!\n— А докажи!\n— Ну... я же не ушёл к другой после того, как ты увидела мою зарплату.",
-            "— Мам, а откуда я взялся?\n— Из капусты.\n— А Петя?\n— А Петя из магазина.\n— Везёт же некоторым!",
-            "Студент перед экзаменом:\n— Господи, я так мало знаю, но так много надеюсь!",
-            "— Почему вы опоздали на работу?\n— Понимаете, я шёл и увидел знак «Осторожно, дети». Я замедлился...",
-            "Объявление в лифте: «Уважаемые жильцы! Не бросайте мусор в шахту лифта. Он не бездонный!»",
-            "— У вас есть работа для ленивых?\n— Да, но начинать надо вчера.",
-            "Заходит скелет в бар и говорит:\n— Мне кружку пива и швабру.",
-            "— Что делать если у вас украли тень?\n— Не переживайте, она ещё вернётся когда стемнеет.",
-            "Встречаются два друга:\n— Как жизнь?\n— Как в сказке!\n— Это хорошо?\n— Нет, это плохо. Чем дальше, тем страшнее.",
-            "— Алло, это служба поддержки?\n— Да.\n— У меня мышка не работает.\n— А вы её в розетку включили?",
-            "Жена отправляет мужа в магазин:\n— Купи хлеб. Если будут яйца — возьми 10.\nМуж возвращается с 10 буханками хлеба.\n— Почему так много?\n— Так яйца же были!",
-            "— Доктор, я буду жить?\n— А смысл?",
-            "На собеседовании:\n— Назовите ваши сильные стороны.\n— Я упорный.\n— Спасибо, мы вам перезвоним.\n— Я подожду.",
-            "— Почему программисты путают Хэллоуин и Рождество?\n— Потому что Oct 31 = Dec 25",
-            "Объявление: «Прополз кот. Приметы: полосатый, хвостатый. Очень голодный. Если увидите — не убегайте, он всё равно быстрее.»"
-        ];
+    <!-- ==================== СКРИПТЫ ==================== -->
+    <script type="module">
+        // ==================== FIREBASE ====================
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-app.js";
+        import { getFirestore, collection, addDoc, getDocs, query, orderBy, deleteDoc, doc, onSnapshot, updateDoc } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-firestore.js";
 
-        let currentJokeIndex = 0;
-        let likedJokesList = [];
+        const firebaseConfig = {
+            apiKey: "AIzaSyDtm97uLN6K4kykEGJ4lveGPgsDkb4CAl4",
+            authDomain: "nbcweb-6e214.firebaseapp.com",
+            projectId: "nbcweb-6e214",
+            storageBucket: "nbcweb-6e214.firebasestorage.app",
+            messagingSenderId: "351857249748",
+            appId: "1:351857249748:web:d4a17a8cc28cc034289a41"
+        };
 
-        function loadJoke(index) {
-            document.getElementById('jokeText').innerText = jokes[index];
-            document.getElementById('jokeNumber').innerText = index + 1;
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // ==================== ДНИ С 9 АВГУСТА 2024 ====================
+        function calculateDays() {
+            const startDate = new Date('2024-08-09');
+            const today = new Date();
+            const diffTime = Math.abs(today - startDate);
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+            return diffDays;
+        }
+        function calculateDayz() {
+            const startDate = new Date('2026-01-01');
+            const today = new Date();
+            const diffTime = Math.abs(today - startDate);
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+            return diffDays;
         }
 
-        function nextJoke() {
-            currentJokeIndex = (currentJokeIndex + 1) % jokes.length;
-            loadJoke(currentJokeIndex);
+        function updateDaysCounter() {
+            const days = calculateDays();
+	    const dayz = calculateDayz();
+            document.getElementById('days-counter').textContent = days;
+            document.getElementById('days-achievements').textContent = dayz;
+            document.getElementById('sidebar-days').textContent = days;
         }
 
-        function copyJoke() {
-            navigator.clipboard.writeText(jokes[currentJokeIndex]);
-            showNotification('Анекдот скопирован! 📋', 'success');
+        // ==================== АНЕКДОТЫ FIREBASE ====================
+        let currentJoke = null;
+        let jokesList = [];
+
+        window.newJoke = function() {
+            if (jokesList.length === 0) return;
+            const currentIndex = jokesList.findIndex(j => j.id === currentJoke?.id);
+            const nextIndex = (currentIndex + 1) % jokesList.length;
+            displayJoke(jokesList[nextIndex]);
         }
 
-        function toggleLike() {
-            const btn = document.getElementById('likeBtn');
-            
-            if (btn.classList.contains('liked')) {
-                btn.classList.remove('liked');
-                btn.innerText = '❤️ Нравится';
-                likedJokesList = likedJokesList.filter(j => j !== jokes[currentJokeIndex]);
-            } else {
-                btn.classList.add('liked');
-                btn.innerText = '💖 В избранном';
-                if (!likedJokesList.includes(jokes[currentJokeIndex])) {
-                    likedJokesList.push(jokes[currentJokeIndex]);
+        window.copyJoke = function() {
+            if (currentJoke) {
+                navigator.clipboard.writeText(currentJoke.content).then(() => {
+                    alert('Скопировано!');
+                });
+            }
+        }
+
+        window.rateJoke = async function(type) {
+            if (!currentJoke) return;
+            try {
+                const jokeRef = doc(db, "jokes", currentJoke.id);
+                if (type === 'up') {
+                    await updateDoc(jokeRef, {
+                        upvotes: (currentJoke.upvotes || 0) + 1
+                    });
+                } else {
+                    await updateDoc(jokeRef, {
+                        downvotes: (currentJoke.downvotes || 0) + 1
+                    });
                 }
-            }
-            updateLikedJokes();
-            saveLikedJokes();
-        }
-
-        function updateLikedJokes() {
-            const container = document.getElementById('likedJokes');
-            if (likedJokesList.length === 0) {
-                container.innerHTML = '<p style="color: #666; font-style: italic;">Пока нет избранных. Жми «Нравится»!</p>';
-            } else {
-                container.innerHTML = likedJokesList.map((joke, i) => 
-                    `<div style="background: #f8f9fa; padding: 15px; margin: 10px 0; border-radius: 10px; border-left: 4px solid #FFD700;">
-                        <small style="color: #666;">#${i + 1}</small>
-                        <p style="margin: 8px 0 0 0; font-size: 0.98em; line-height: 1.7;">${joke}</p>
-                    </div>`
-                ).join('');
+            } catch (error) {
+                console.error('Ошибка:', error);
             }
         }
 
-        function saveLikedJokes() {
-            localStorage.setItem('nbc_likedJokes', JSON.stringify(likedJokesList));
+        function displayJoke(joke) {
+            currentJoke = joke;
+            document.getElementById('joke-text').textContent = joke.content;
+            document.getElementById('joke-upvotes').textContent = joke.upvotes || 0;
+            document.getElementById('joke-downvotes').textContent = joke.downvotes || 0;
         }
 
-        function loadLikedJokes() {
-            const saved = localStorage.getItem('nbc_likedJokes');
-            if (saved) {
-                likedJokesList = JSON.parse(saved);
-                updateLikedJokes();
-            }
+        function loadJokes() {
+            const q = query(collection(db, "jokes"), orderBy("date", "desc"));
+            onSnapshot(q, (snapshot) => {
+                jokesList = [];
+                snapshot.docs.forEach(docSnap => {
+                    jokesList.push({
+                        id: docSnap.id,
+                        ...docSnap.data()
+                    });
+                });
+                document.getElementById('sidebar-jokes').textContent = jokesList.length;
+                if (jokesList.length > 0 && !currentJoke) {
+                    displayJoke(jokesList[0]);
+                }
+            });
         }
 
-        // Имитация загрузки новых анекдотов (для демонстрации)
-        function fetchJokes() {
-            showNotification('📡 Загрузка новых анекдотов...', 'info');
-            setTimeout(() => {
-                // Перемешиваем массив для эффекта "новых" анекдотов
-                jokes = jokes.sort(() => Math.random() - 0.5);
-                currentJokeIndex = 0;
-                loadJoke(0);
-                showNotification('✅ База анекдотов обновлена!', 'success');
-            }, 1500);
-        }
-
-        // ==================== ГОРОДА ====================
-        function toggleCity(checkbox) {
-            const cityItem = checkbox.parentElement;
-            const visitedContainer = document.getElementById('visitedCities');
-            const toVisitContainer = document.getElementById('toVisitCities');
+        window.submitJoke = async function(event) {
+            event.preventDefault();
+            const author = document.getElementById('jokeAuthor').value.trim();
+            const content = document.getElementById('jokeContent').value.trim();
             
-            if (checkbox.checked) {
-                cityItem.classList.add('checked');
-                visitedContainer.appendChild(cityItem);
-            } else {
-                cityItem.classList.remove('checked');
-                toVisitContainer.appendChild(cityItem);
+            if (!content) {
+                alert('Введите текст анекдота!');
+                return;
             }
-            
-            updateStats();
-            saveCities();
+
+            try {
+                await addDoc(collection(db, "jokes"), {
+                    author: author || 'Аноним',
+                    content: content,
+                    upvotes: 0,
+                    downvotes: 0,
+                    date: new Date().toISOString()
+                });
+                document.getElementById('jokeAuthor').value = '';
+                document.getElementById('jokeContent').value = '';
+                alert('✅ Анекдот добавлен!');
+            } catch (error) {
+                console.error('Ошибка:', error);
+                alert('❌ Ошибка отправки');
+            }
         }
 
-        function addCity() {
-            const input = document.getElementById('newCityInput');
+        // ==================== ГОРОДА FIREBASE ====================
+        window.addCity = async function(type) {
+            const input = document.getElementById(type + '-input');
             const cityName = input.value.trim();
             
-            if (cityName) {
-                const toVisitContainer = document.getElementById('toVisitCities');
-                const cityItem = document.createElement('div');
-                cityItem.className = 'city-item';
-                cityItem.innerHTML = `
-                    <input type="checkbox" onchange="toggleCity(this)">
-                    <span>${cityName}</span>
-                    <button class="delete-btn" onclick="deleteCity(this)">🗑️</button>
-                `;
-                toVisitContainer.appendChild(cityItem);
+            if (!cityName) {
+                alert('⚠️ Введите название города!');
+                return;
+            }
+
+            try {
+                await addDoc(collection(db, "cities"), {
+                    name: cityName,
+                    visited: type === 'visited',
+                    date: new Date().toISOString()
+                });
                 input.value = '';
-                updateStats();
-                saveCities();
-                showNotification('🌍 Город добавлен!', 'success');
+                alert('🌍 Город добавлен!');
+            } catch (error) {
+                console.error('Ошибка:', error);
+                alert('❌ Ошибка: ' + error.message);
             }
-        }
+        };
 
-        function deleteCity(btn) {
-            const cityItem = btn.parentElement;
-            const cityName = cityItem.querySelector('span').innerText;
-            
-            if (confirm(`Удалить город "${cityName}"?`)) {
-                cityItem.remove();
-                updateStats();
-                saveCities();
-                showNotification('🗑️ Город удалён!', 'info');
+        window.moveCity = async function(cityId, visited) {
+            try {
+                await updateDoc(doc(db, "cities", cityId), {
+                    visited: visited
+                });
+            } catch (error) {
+                console.error('Ошибка:', error);
             }
-        }
+        };
 
-        function updateStats() {
-            const visited = document.querySelectorAll('#visitedCities .city-item').length;
-            const toVisit = document.querySelectorAll('#toVisitCities .city-item').length;
-            const total = visited + toVisit;
-            
-            document.getElementById('totalCities').innerText = total;
-            document.getElementById('visitedCount').innerText = visited;
-            document.getElementById('toVisitCount').innerText = toVisit;
-        }
-
-        function saveCities() {
-            const visited = [];
-            const toVisit = [];
-            
-            document.querySelectorAll('#visitedCities .city-item').forEach(item => {
-                const span = item.querySelector('span');
-                const checked = item.querySelector('input').checked;
-                visited.push({ name: span.innerText, checked });
-            });
-            
-            document.querySelectorAll('#toVisitCities .city-item').forEach(item => {
-                const span = item.querySelector('span');
-                toVisit.push(span.innerText);
-            });
-            
-            localStorage.setItem('nbc_visitedCities', JSON.stringify(visited));
-            localStorage.setItem('nbc_toVisitCities', JSON.stringify(toVisit));
-        }
+        window.deleteCity = async function(cityId) {
+            if (!confirm('Удалить этот город?')) return;
+            try {
+                await deleteDoc(doc(db, "cities", cityId));
+                alert('🗑️ Город удалён!');
+            } catch (error) {
+                console.error('Ошибка:', error);
+                alert('❌ Ошибка при удалении');
+            }
+        };
 
         function loadCities() {
-            const visited = JSON.parse(localStorage.getItem('nbc_visitedCities')) || [];
-            const toVisit = JSON.parse(localStorage.getItem('nbc_toVisitCities')) || [];
+            const q = query(collection(db, "cities"), orderBy("date", "desc"));
             
-            const visitedContainer = document.getElementById('visitedCities');
-            const toVisitContainer = document.getElementById('toVisitCities');
-            
-            visitedContainer.innerHTML = '';
-            toVisitContainer.innerHTML = '';
-            
-            visited.forEach(city => {
-                const cityItem = document.createElement('div');
-                cityItem.className = `city-item ${city.checked ? 'checked' : ''}`;
-                cityItem.innerHTML = `
-                    <input type="checkbox" ${city.checked ? 'checked' : ''} onchange="toggleCity(this)">
-                    <span>${city.name}</span>
-                    <button class="delete-btn" onclick="deleteCity(this)">🗑️</button>
-                `;
-                visitedContainer.appendChild(cityItem);
+            onSnapshot(q, (snapshot) => {
+                const visitedContainer = document.getElementById('visited-cities');
+                const plannedContainer = document.getElementById('planned-cities');
+                visitedContainer.innerHTML = '';
+                plannedContainer.innerHTML = '';
+                
+                let visitedCount = 0;
+                let plannedCount = 0;
+
+                snapshot.docs.forEach(docSnap => {
+                    const city = docSnap.data();
+                    const cityId = docSnap.id;
+                    const cityItem = document.createElement('li');
+
+                    const actions = city.visited 
+                        ? `<button class="btn btn-secondary btn-icon" onclick="window.moveCity('${cityId}', false)">→</button>`
+                        : `<button class="btn btn-secondary btn-icon" onclick="window.moveCity('${cityId}', true)">✓</button>`;
+
+                    cityItem.innerHTML = `
+                        <span class="item-name">${escapeHtml(city.name)}</span>
+                        <div class="item-actions">
+                            ${actions}
+                            <button class="btn btn-danger btn-icon" onclick="window.deleteCity('${cityId}')">✕</button>
+                        </div>
+                    `;
+
+                    if (city.visited) {
+                        visitedContainer.appendChild(cityItem);
+                        visitedCount++;
+                    } else {
+                        plannedContainer.appendChild(cityItem);
+                        plannedCount++;
+                    }
+                });
+
+                if (visitedCount === 0) {
+                    visitedContainer.innerHTML = '<li class="empty-state">Пока пусто</li>';
+                }
+                if (plannedCount === 0) {
+                    plannedContainer.innerHTML = '<li class="empty-state">Пока пусто</li>';
+                }
+
+                document.getElementById('visited-count').textContent = visitedCount;
+                document.getElementById('planned-count').textContent = plannedCount;
+                document.getElementById('total-cities').textContent = visitedCount + plannedCount;
+                document.getElementById('sidebar-cities').textContent = visitedCount + plannedCount;
+            }, (error) => {
+                console.error('Ошибка загрузки городов:', error);
             });
-            
-            toVisit.forEach(city => {
-                const cityItem = document.createElement('div');
-                cityItem.className = 'city-item';
-                cityItem.innerHTML = `
-                    <input type="checkbox" onchange="toggleCity(this)">
-                    <span>${city}</span>
-                    <button class="delete-btn" onclick="deleteCity(this)">🗑️</button>
-                `;
-                toVisitContainer.appendChild(cityItem);
-            });
-            
-            updateStats();
         }
 
-        // ==================== КОММЕНТАРИИ/ФОРУМ ====================
-        function addComment() {
-            const nameInput = document.getElementById('commentName');
-            const textInput = document.getElementById('commentText');
+        // ==================== СОБЫТИЯ FIREBASE ====================
+        window.addEvent = async function() {
+            const nameInput = document.getElementById('event-input');
+            const dateInput = document.getElementById('event-date');
+            const name = nameInput.value.trim();
+            const date = dateInput.value;
             
-            const name = nameInput.value.trim() || 'Аноним';
-            const text = textInput.value.trim();
-            
-            if (!text) {
-                showNotification('⚠️ Введите текст сообщения!', 'error');
+            if (!name || !date) {
+                alert('Заполните название и дату события');
                 return;
             }
 
-            const comment = {
-                id: Date.now(),
-                name: name,
-                text: text,
-                date: new Date().toLocaleString('ru-RU')
-            };
+            try {
+                await addDoc(collection(db, "events"), {
+                    name: name,
+                    date: date,
+                    createdAt: new Date().toISOString()
+                });
+                nameInput.value = '';
+                dateInput.value = '';
+                alert('✅ Событие создано!');
+            } catch (error) {
+                console.error('Ошибка:', error);
+                alert('❌ Ошибка создания события');
+            }
+        };
 
-            const comments = getComments();
-            comments.unshift(comment);
-            localStorage.setItem('nbc_comments', JSON.stringify(comments));
+        window.deleteEvent = async function(eventId) {
+            if (!confirm('Удалить это событие?')) return;
+            try {
+                await deleteDoc(doc(db, "events", eventId));
+                alert('🗑️ Событие удалено!');
+            } catch (error) {
+                console.error('Ошибка:', error);
+                alert('❌ Ошибка при удалении');
+            }
+        };
 
-            nameInput.value = '';
-            textInput.value = '';
+        function loadEvents() {
+            const q = query(collection(db, "events"), orderBy("date", "asc"));
             
-            renderComments();
-            showNotification('✅ Сообщение отправлено!', 'success');
+            onSnapshot(q, (snapshot) => {
+                const eventsList = document.getElementById('events-list');
+                eventsList.innerHTML = '';
+                
+                if (snapshot.empty) {
+                    eventsList.innerHTML = '<li class="empty-state">Ближайших событий нет</li>';
+                } else {
+                    snapshot.docs.forEach(docSnap => {
+                        const event = docSnap.data();
+                        const eventId = docSnap.id;
+                        const date = new Date(event.date).toLocaleDateString('ru-RU');
+                        
+                        const eventItem = document.createElement('li');
+                        eventItem.innerHTML = `
+                            <div>
+                                <span class="item-name" style="font-weight: 600;">${escapeHtml(event.name)}</span>
+                                <div style="font-size: 11px; color: var(--text-secondary);">${date}</div>
+                            </div>
+                            <button class="btn btn-danger btn-icon" onclick="window.deleteEvent('${eventId}')">✕</button>
+                        `;
+                        eventsList.appendChild(eventItem);
+                    });
+                }
+                
+                document.getElementById('sidebar-events').textContent = snapshot.size;
+            }, (error) => {
+                console.error('Ошибка загрузки событий:', error);
+            });
         }
 
-        function getComments() {
-            const saved = localStorage.getItem('nbc_comments');
-            return saved ? JSON.parse(saved) : [];
-        }
-
-        function renderComments() {
-            const container = document.getElementById('commentsList');
-            const comments = getComments();
-
-            if (comments.length === 0) {
-                container.innerHTML = `
-                    <div class="no-comments">
-                        <p>🤔 Пока нет комментариев</p>
-                        <p>Будь первым кто напишет!</p>
-                    </div>
-                `;
-                return;
+        // ==================== ФОРУМ FIREBASE ====================
+        window.submitMessage = async function(event) {
+            event.preventDefault();
+            const name = document.getElementById('commentName').value.trim() || 'Аноним';
+            const text = document.getElementById('commentText').value.trim();
+            
+            if (!text) { 
+                alert('Введите текст!'); 
+                return; 
             }
 
-            container.innerHTML = comments.map(comment => `
-                <div class="comment-item">
-                    <div class="comment-header">
-                        <span class="comment-author">${escapeHtml(comment.name)}</span>
-                        <span class="comment-date">${comment.date}</span>
-                    </div>
-                    <div class="comment-text">${escapeHtml(comment.text)}</div>
-                    <button class="comment-delete" onclick="deleteComment(${comment.id})">🗑️ Удалить</button>
-                </div>
-            `).join('');
-        }
-
-        function deleteComment(id) {
-            if (confirm('Удалить это сообщение?')) {
-                const comments = getComments().filter(c => c.id !== id);
-                localStorage.setItem('nbc_comments', JSON.stringify(comments));
-                renderComments();
-                showNotification('🗑️ Сообщение удалено!', 'info');
+            try {
+                await addDoc(collection(db, "comments"), {
+                    name: name,
+                    text: text,
+                    date: new Date().toISOString()
+                });
+                document.getElementById('commentName').value = '';
+                document.getElementById('commentText').value = '';
+                alert('✅ Отправлено!');
+            } catch (error) {
+                console.error('Ошибка:', error);
+                alert('❌ Ошибка отправки');
             }
+        };
+
+        function loadComments() {
+            const q = query(collection(db, "comments"), orderBy("date", "desc"));
+            
+            onSnapshot(q, (snapshot) => {
+                const container = document.getElementById('messages-container');
+                
+                if (snapshot.empty) {
+                    container.innerHTML = '<p class="empty-state">Пока нет комментариев<br>Будь первым кто напишет!</p>';
+                    return;
+                }
+                
+                container.innerHTML = snapshot.docs.map(docSnap => {
+                    const c = docSnap.data();
+                    return `
+                        <div style="background: var(--bg-color); padding: 14px; border-radius: 8px; margin-bottom: 10px; border-left: 3px solid var(--accent-color);">
+                            <div style="font-weight: 600; color: var(--primary-color); margin-bottom: 4px; font-size: 13px;">${escapeHtml(c.name)}</div>
+                            <div style="font-size: 13px;">${escapeHtml(c.text)}</div>
+                            <div style="font-size: 10px; color: var(--text-secondary); margin-top: 6px;">${new Date(c.date).toLocaleString('ru-RU')}</div>
+                        </div>
+                    `;
+                }).join('');
+            });
         }
 
+        // ==================== УТИЛИТЫ ====================
         function escapeHtml(text) {
             const div = document.createElement('div');
             div.textContent = text;
             return div.innerHTML;
         }
 
-        // ==================== УВЕДОМЛЕНИЯ ====================
-        function showNotification(message, type = 'info') {
-            const colors = {
-                success: 'linear-gradient(135deg, #28a745 0%, #20c997 100%)',
-                error: 'linear-gradient(135deg, #dc3545 0%, #c82333 100%)',
-                info: 'linear-gradient(135deg, #0066CC 0%, #0099FF 100%)'
-            };
+        // ==================== НАВИГАЦИЯ ====================
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            });
+        });
 
-            const notification = document.createElement('div');
-            notification.style.cssText = `
-                position: fixed;
-                top: 20px;
-                right: 20px;
-                background: ${colors[type]};
-                color: white;
-                padding: 15px 25px;
-                border-radius: 10px;
-                font-weight: bold;
-                z-index: 10000;
-                box-shadow: 0 5px 20px rgba(0,0,0,0.3);
-                animation: slideIn 0.3s ease;
-            `;
-            notification.innerText = message;
-            document.body.appendChild(notification);
-
-            setTimeout(() => {
-                notification.style.animation = 'slideOut 0.3s ease';
-                setTimeout(() => notification.remove(), 300);
-            }, 3000);
-        }
-
-        // Add animation styles
-        const style = document.createElement('style');
-        style.textContent = `
-            @keyframes slideIn {
-                from { transform: translateX(100%); opacity: 0; }
-                to { transform: translateX(0); opacity: 1; }
-            }
-            @keyframes slideOut {
-                from { transform: translateX(0); opacity: 1; }
-                to { transform: translateX(100%); opacity: 0; }
-            }
-        `;
-        document.head.appendChild(style);
+        window.addEventListener('scroll', () => {
+            const sections = document.querySelectorAll('section');
+            const navLinks = document.querySelectorAll('.nav-menu a');
+            
+            let current = '';
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                if (scrollY >= sectionTop - 100) {
+                    current = section.getAttribute('id');
+                }
+            });
+            
+            navLinks.forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('href') === `#${current}`) {
+                    link.classList.add('active');
+                }
+            });
+        });
 
         // ==================== ИНИЦИАЛИЗАЦИЯ ====================
-        document.addEventListener('DOMContentLoaded', function() {
-            loadJoke(0);
+        document.addEventListener('DOMContentLoaded', () => {
+            updateDaysCounter();
+            loadJokes();
             loadCities();
-            loadLikedJokes();
-            renderComments();
-            
-            document.getElementById('newCityInput').addEventListener('keypress', function(e) {
-                if (e.key === 'Enter') addCity();
-            });
-
-            document.getElementById('commentText').addEventListener('keypress', function(e) {
-                if (e.key === 'Enter' && e.ctrlKey) addComment();
-            });
+            loadEvents();
+            loadComments();
         });
     </script>
 </body>
