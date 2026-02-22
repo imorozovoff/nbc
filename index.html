@@ -1,5 +1,69 @@
 <!DOCTYPE html>
 <html lang="ru">
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-app.js";
+  import { getFirestore, collection, addDoc, getDocs, query, orderBy, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyDtm97uLN6K4kykEGJ4lveGPgsDkb4CAl4",
+    authDomain: "nbcweb-6e214.firebaseapp.com",
+    projectId: "nbcweb-6e214",
+    storageBucket: "nbcweb-6e214.firebasestorage.app",
+    messagingSenderId: "351857249748",
+    appId: "1:351857249748:web:d4a17a8cc28cc034289a41"
+  };
+
+
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+  window.addComment = async function() {
+    const name = document.getElementById('commentName').value.trim() || 'Аноним';
+    const text = document.getElementById('commentText').value.trim();
+    
+    if (!text) { alert('Введите текст!'); return; }
+
+    await addDoc(collection(db, "comments"), {
+      name: name,
+      text: text,
+      date: new Date().toISOString()
+    });
+
+    document.getElementById('commentName').value = '';
+    document.getElementById('commentText').value = '';
+    renderComments();
+    alert('✅ Отправлено!');
+  };
+
+  // Загрузка комментариев
+  window.renderComments = async function() {
+    const q = query(collection(db, "comments"), orderBy("date", "desc"));
+    const snapshot = await getDocs(q);
+    const container = document.getElementById('commentsList');
+    
+    if (snapshot.empty) {
+      container.innerHTML = '<div class="no-comments"><p>🤔 Пока нет комментариев</p></div>';
+      return;
+    }
+
+    container.innerHTML = snapshot.docs.map(docSnap => {
+      const c = docSnap.data();
+      return `
+        <div class="comment-item">
+          <div class="comment-header">
+            <span class="comment-author">👤 ${c.name}</span>
+            <span class="comment-date">${new Date(c.date).toLocaleString('ru-RU')}</span>
+          </div>
+          <div class="comment-text">${c.text}</div>
+        </div>
+      `;
+    }).join('');
+  };
+
+  // Автозагрузка при старте
+  document.addEventListener('DOMContentLoaded', renderComments);
+</script>
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
