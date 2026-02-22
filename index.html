@@ -8,18 +8,37 @@
     <!-- ==================== СТИЛИ ==================== -->
     <style>
         :root {
+            /* Светлая тема (по умолчанию) */
             --bg-color: #F5F5F7;
             --sidebar-bg: #FFFFFF;
             --card-bg: #FFFFFF;
             --primary-color: #0F3C5F;
+            --primary-light: #1A5276;
             --accent-color: #B8860B;
+            --accent-light: #D4AF37;
             --text-main: #1D1D1F;
             --text-secondary: #86868B;
             --border-color: #E5E5EA;
-            --radius: 14px;
             --shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
             --success-color: #34C759;
             --danger-color: #FF3B30;
+            --hover-bg: rgba(15, 60, 95, 0.05);
+        }
+
+        /* Тёмная тема — гармоничная палитра */
+        [data-theme="dark"] {
+            --bg-color: #0D1117;
+            --sidebar-bg: #161B22;
+            --card-bg: #21262D;
+            --primary-color: #58A6FF;
+            --primary-light: #79C0FF;
+            --accent-color: #D29922;
+            --accent-light: #F4D150;
+            --text-main: #F0F6FC;
+            --text-secondary: #8B949E;
+            --border-color: #30363D;
+            --shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+            --hover-bg: rgba(88, 166, 255, 0.08);
         }
 
         * {
@@ -33,6 +52,7 @@
             background: var(--bg-color);
             color: var(--text-main);
             min-height: 100vh;
+            transition: background 0.3s ease, color 0.3s ease;
         }
 
         /* ==================== МАКЕТ ==================== */
@@ -54,6 +74,7 @@
             height: 100vh;
             overflow-y: auto;
             border-right: 1px solid var(--border-color);
+            transition: background 0.3s ease, border-color 0.3s ease;
         }
 
         .logo {
@@ -91,13 +112,74 @@
         }
 
         .nav-menu a:hover {
-            background: var(--bg-color);
+            background: var(--hover-bg);
             color: var(--primary-color);
         }
 
         .nav-menu a.active {
             background: var(--primary-color);
             color: white;
+        }
+
+        /* ==================== ПЕРЕКЛЮЧАТЕЛЬ ТЕМЫ ==================== */
+        .theme-toggle {
+            margin-top: 30px;
+            padding: 15px;
+            background: var(--hover-bg);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .theme-toggle span {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-main);
+        }
+
+        .toggle-switch {
+            position: relative;
+            width: 50px;
+            height: 26px;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: var(--border-color);
+            transition: 0.3s;
+            border-radius: 26px;
+        }
+
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 20px;
+            width: 20px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: 0.3s;
+            border-radius: 50%;
+        }
+
+        input:checked + .toggle-slider {
+            background-color: var(--primary-color);
+        }
+
+        input:checked + .toggle-slider:before {
+            transform: translateX(24px);
         }
 
         /* ==================== ЦЕНТРАЛЬНАЯ КОЛОНКА ==================== */
@@ -108,11 +190,12 @@
 
         .card {
             background: var(--card-bg);
-            border-radius: var(--radius);
+            border-radius: 14px;
             padding: 25px;
             margin-bottom: 20px;
             box-shadow: var(--shadow);
             border: 1px solid var(--border-color);
+            transition: background 0.3s ease, border-color 0.3s ease;
         }
 
         .card-header {
@@ -224,7 +307,7 @@
 
         .rating-btn {
             background: none;
-            border: none;
+            border: 2px solid transparent;
             cursor: pointer;
             padding: 6px 10px;
             border-radius: 6px;
@@ -242,6 +325,13 @@
 
         .rating-btn.up:hover {
             background: rgba(52, 199, 89, 0.1);
+            border-color: var(--success-color);
+        }
+
+        .rating-btn.up.voted {
+            background: var(--success-color);
+            color: white;
+            border-color: var(--success-color);
         }
 
         .rating-btn.down {
@@ -250,6 +340,13 @@
 
         .rating-btn.down:hover {
             background: rgba(255, 59, 48, 0.1);
+            border-color: var(--danger-color);
+        }
+
+        .rating-btn.down.voted {
+            background: var(--danger-color);
+            color: white;
+            border-color: var(--danger-color);
         }
 
         .rating-btn svg {
@@ -299,7 +396,7 @@
         }
 
         .btn-secondary {
-            background: white;
+            background: var(--card-bg);
             border: 1px solid var(--border-color);
             color: var(--text-main);
         }
@@ -356,6 +453,8 @@
             font-family: inherit;
             font-size: 14px;
             transition: border-color 0.2s;
+            background: var(--card-bg);
+            color: var(--text-main);
         }
 
         .form-input:focus,
@@ -379,11 +478,12 @@
 
         .info-card {
             background: var(--card-bg);
-            border-radius: var(--radius);
+            border-radius: 14px;
             padding: 18px;
             margin-bottom: 18px;
             box-shadow: var(--shadow);
             border: 1px solid var(--border-color);
+            transition: background 0.3s ease, border-color 0.3s ease;
         }
 
         .info-title {
@@ -469,6 +569,8 @@
             border: 1px solid var(--border-color);
             border-radius: 7px;
             font-size: 13px;
+            background: var(--card-bg);
+            color: var(--text-main);
         }
 
         /* ==================== FOOTER ==================== */
@@ -564,6 +666,15 @@
                 <li><a href="#forum">Форум</a></li>
                 <li><a href="#contacts">Контакты</a></li>
             </ul>
+
+            <!-- Переключатель темы -->
+            <div class="theme-toggle">
+                <span>🌙 Тёмная тема</span>
+                <label class="toggle-switch">
+                    <input type="checkbox" id="themeToggle">
+                    <span class="toggle-slider"></span>
+                </label>
+            </div>
         </aside>
 
         <!-- ==================== ЦЕНТРАЛЬНАЯ КОЛОНКА ==================== -->
@@ -654,13 +765,13 @@
                         <button class="btn btn-primary" onclick="newJoke()">Следующий</button>
                         <button class="btn btn-secondary" onclick="copyJoke()">Копировать</button>
                         <div class="joke-rating">
-                            <button class="rating-btn up" onclick="rateJoke('up')">
+                            <button class="rating-btn up" onclick="rateJoke('up')" id="btn-up">
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
                                     <path d="M12 19V5M5 12l7-7 7 7"/>
                                 </svg>
                                 <span class="rating-count" id="joke-upvotes">0</span>
                             </button>
-                            <button class="rating-btn down" onclick="rateJoke('down')">
+                            <button class="rating-btn down" onclick="rateJoke('down')" id="btn-down">
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
                                     <path d="M12 5v14M5 12l7 7 7-7"/>
                                 </svg>
@@ -820,7 +931,7 @@
 
     <!-- ==================== FOOTER ==================== -->
     <footer class="footer">
-        <p>НБЦ Squad © 2026 Все права защищены</p>
+        <p>НБЦ Squad © 2024 Все права защищены</p>
         <p style="margin-top: 5px; opacity: 0.6;">Сделано за чекушку</p>
     </footer>
 
@@ -828,7 +939,7 @@
     <script type="module">
         // ==================== FIREBASE ====================
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-app.js";
-        import { getFirestore, collection, addDoc, getDocs, query, orderBy, deleteDoc, doc, onSnapshot, updateDoc } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, getDocs, query, orderBy, deleteDoc, doc, onSnapshot, updateDoc, increment } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyDtm97uLN6K4kykEGJ4lveGPgsDkb4CAl4",
@@ -842,6 +953,27 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
+        // ==================== ТЁМНАЯ ТЕМА ====================
+        const themeToggle = document.getElementById('themeToggle');
+        
+        // Загрузка сохранённой темы
+        const savedTheme = localStorage.getItem('nbc_theme');
+        if (savedTheme === 'dark') {
+            document.documentElement.setAttribute('data-theme', 'dark');
+            themeToggle.checked = true;
+        }
+
+        // Переключение темы
+        themeToggle.addEventListener('change', () => {
+            if (themeToggle.checked) {
+                document.documentElement.setAttribute('data-theme', 'dark');
+                localStorage.setItem('nbc_theme', 'dark');
+            } else {
+                document.documentElement.removeAttribute('data-theme');
+                localStorage.setItem('nbc_theme', 'light');
+            }
+        });
+
         // ==================== ДНИ С 9 АВГУСТА 2024 ====================
         function calculateDays() {
             const startDate = new Date('2024-08-09');
@@ -850,25 +982,20 @@
             const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
             return diffDays;
         }
-        function calculateDayz() {
-            const startDate = new Date('2026-01-01');
-            const today = new Date();
-            const diffTime = Math.abs(today - startDate);
-            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-            return diffDays;
-        }
 
         function updateDaysCounter() {
             const days = calculateDays();
-	    const dayz = calculateDayz();
             document.getElementById('days-counter').textContent = days;
-            document.getElementById('days-achievements').textContent = dayz;
+            document.getElementById('days-achievements').textContent = days;
             document.getElementById('sidebar-days').textContent = days;
         }
 
         // ==================== АНЕКДОТЫ FIREBASE ====================
         let currentJoke = null;
         let jokesList = [];
+
+        // Загрузка проголосовавших из localStorage (храним тип голоса: 'up', 'down', или null)
+        let votedJokes = JSON.parse(localStorage.getItem('nbc_votedJokes')) || {};
 
         window.newJoke = function() {
             if (jokesList.length === 0) return;
@@ -887,19 +1014,79 @@
 
         window.rateJoke = async function(type) {
             if (!currentJoke) return;
+            
+            const jokeId = currentJoke.id;
+            const currentVote = votedJokes[jokeId]; // 'up', 'down', или undefined
+
             try {
-                const jokeRef = doc(db, "jokes", currentJoke.id);
-                if (type === 'up') {
-                    await updateDoc(jokeRef, {
-                        upvotes: (currentJoke.upvotes || 0) + 1
-                    });
+                const jokeRef = doc(db, "jokes", jokeId);
+                
+                if (currentVote === type) {
+                    // Если голосует за тот же вариант → отменяем голос
+                    if (type === 'up') {
+                        await updateDoc(jokeRef, {
+                            upvotes: increment(-1)
+                        });
+                        delete votedJokes[jokeId];
+                    } else {
+                        await updateDoc(jokeRef, {
+                            downvotes: increment(-1)
+                        });
+                        delete votedJokes[jokeId];
+                    }
+                } else if (currentVote) {
+                    // Если голосует за другой вариант → переключаем
+                    if (type === 'up') {
+                        await updateDoc(jokeRef, {
+                            upvotes: increment(1),
+                            downvotes: increment(-1)
+                        });
+                        votedJokes[jokeId] = 'up';
+                    } else {
+                        await updateDoc(jokeRef, {
+                            upvotes: increment(-1),
+                            downvotes: increment(1)
+                        });
+                        votedJokes[jokeId] = 'down';
+                    }
                 } else {
-                    await updateDoc(jokeRef, {
-                        downvotes: (currentJoke.downvotes || 0) + 1
-                    });
+                    // Если голосует впервые
+                    if (type === 'up') {
+                        await updateDoc(jokeRef, {
+                            upvotes: increment(1)
+                        });
+                        votedJokes[jokeId] = 'up';
+                    } else {
+                        await updateDoc(jokeRef, {
+                            downvotes: increment(1)
+                        });
+                        votedJokes[jokeId] = 'down';
+                    }
                 }
+                
+                // Сохраняем в localStorage
+                localStorage.setItem('nbc_votedJokes', JSON.stringify(votedJokes));
+                
+                // Визуально показываем голос
+                updateVoteButtons(votedJokes[jokeId]);
             } catch (error) {
                 console.error('Ошибка:', error);
+            }
+        }
+
+        function updateVoteButtons(voteType) {
+            const btnUp = document.getElementById('btn-up');
+            const btnDown = document.getElementById('btn-down');
+            
+            // Сбрасываем оба
+            btnUp.classList.remove('voted');
+            btnDown.classList.remove('voted');
+            
+            // Показываем активный
+            if (voteType === 'up') {
+                btnUp.classList.add('voted');
+            } else if (voteType === 'down') {
+                btnDown.classList.add('voted');
             }
         }
 
@@ -908,6 +1095,10 @@
             document.getElementById('joke-text').textContent = joke.content;
             document.getElementById('joke-upvotes').textContent = joke.upvotes || 0;
             document.getElementById('joke-downvotes').textContent = joke.downvotes || 0;
+            
+            // Проверяем, голосовал ли за этот анекдот
+            const jokeId = joke.id;
+            updateVoteButtons(votedJokes[jokeId]);
         }
 
         function loadJokes() {
