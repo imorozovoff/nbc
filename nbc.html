@@ -1,0 +1,1203 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>НБЦ — Ненавижу Блядь Цыган</title>
+    <style>
+        /* ==================== БАЗОВЫЕ СТИЛИ ==================== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #00BFFF 0%, #0099FF 25%, #0077FF 50%, #0066CC 75%, #0055AA 100%);
+            min-height: 100vh;
+            background-attachment: fixed;
+        }
+
+        /* ==================== ШАПКА ==================== */
+        header {
+            background: linear-gradient(90deg, #0a0a1a 0%, #1a1a3e 50%, #0a0a1a 100%);
+            padding: 35px 20px;
+            text-align: center;
+            border-bottom: 5px solid #FFD700;
+            box-shadow: 0 6px 25px rgba(0,0,0,0.5);
+            position: relative;
+            overflow: hidden;
+        }
+
+        header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,215,0,0.1), transparent);
+            animation: shine 3s infinite;
+        }
+
+        @keyframes shine {
+            0% { left: -100%; }
+            100% { left: 100%; }
+        }
+
+        header h1 {
+            color: #FFD700;
+            font-size: 4em;
+            text-transform: uppercase;
+            letter-spacing: 10px;
+            text-shadow: 3px 3px 6px rgba(0,0,0,0.7),
+                         0 0 30px rgba(255, 215, 0, 0.6);
+            margin-bottom: 10px;
+            position: relative;
+            z-index: 1;
+        }
+
+        header .subtitle {
+            color: #ffffff;
+            font-size: 1.4em;
+            letter-spacing: 5px;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* ==================== МЕНЮ ==================== */
+        nav {
+            background: linear-gradient(180deg, #ffffff 0%, #f0f8ff 100%);
+            padding: 18px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        nav ul {
+            list-style: none;
+            display: flex;
+            justify-content: center;
+            gap: 25px;
+            flex-wrap: wrap;
+        }
+
+        nav ul li a {
+            color: #0066CC;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 1.15em;
+            padding: 12px 25px;
+            border-radius: 30px;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+            display: inline-block;
+        }
+
+        nav ul li a:hover {
+            background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+            color: #0a0a1a;
+            border-color: #0066CC;
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(255,215,0,0.4);
+        }
+
+        /* ==================== КОНТЕЙНЕР ==================== */
+        .container {
+            display: flex;
+            flex-wrap: wrap;
+            max-width: 1450px;
+            margin: 30px auto;
+            gap: 25px;
+            padding: 0 25px;
+        }
+
+        /* ==================== КОЛОНКИ ==================== */
+        .column {
+            background: #ffffff;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.25);
+            border: 4px solid #FFD700;
+        }
+
+        .col-info {
+            flex: 1;
+            min-width: 300px;
+            background: linear-gradient(180deg, #ffffff 0%, #e6f3ff 100%);
+        }
+
+        .col-jokes {
+            flex: 2;
+            min-width: 450px;
+            background: linear-gradient(180deg, #ffffff 0%, #fff9e6 100%);
+        }
+
+        .col-cities {
+            flex: 1;
+            min-width: 300px;
+            background: linear-gradient(180deg, #ffffff 0%, #e6ffe6 100%);
+        }
+
+        /* ==================== ЗАГОЛОВКИ ==================== */
+        .column h2 {
+            color: #0066CC;
+            border-bottom: 4px solid #FFD700;
+            padding-bottom: 12px;
+            margin-bottom: 25px;
+            font-size: 1.6em;
+            text-align: center;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .column h3 {
+            color: #1a1a3e;
+            margin: 20px 0 12px 0;
+            font-size: 1.25em;
+            border-left: 4px solid #00BFFF;
+            padding-left: 12px;
+        }
+
+        /* ==================== КОЛОНКА 1 — СОСТАВ ==================== */
+        .squad-info {
+            background: linear-gradient(135deg, #0066CC 0%, #0099FF 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 15px rgba(0,102,204,0.4);
+        }
+
+        .squad-info p {
+            margin: 12px 0;
+            line-height: 1.7;
+        }
+
+        .members-list {
+            list-style: none;
+        }
+
+        .members-list li {
+            background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+            color: #0a0a1a;
+            padding: 12px 18px;
+            margin: 10px 0;
+            border-radius: 10px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            transition: transform 0.3s ease;
+        }
+
+        .members-list li:hover {
+            transform: translateX(5px);
+        }
+
+        .members-list li::before {
+            content: "🎪";
+            font-size: 1.3em;
+        }
+
+        /* ==================== КОЛОНКА 2 — АНЕКДОТЫ ==================== */
+        .joke-card {
+            background: #fff;
+            border: 3px solid #0066CC;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 25px;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        .joke-card:hover {
+            transform: scale(1.02);
+            box-shadow: 0 8px 25px rgba(0,102,204,0.35);
+        }
+
+        .joke-card .joke-number {
+            position: absolute;
+            top: -15px;
+            left: -15px;
+            background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+            color: #0a0a1a;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.3em;
+            border: 4px solid #0066CC;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.3);
+        }
+
+        .joke-card p {
+            line-height: 1.9;
+            color: #333;
+            font-size: 1.1em;
+            white-space: pre-line;
+        }
+
+        .joke-controls {
+            display: flex;
+            gap: 12px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+
+        .joke-controls button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            font-size: 0.95em;
+        }
+
+        .btn-next {
+            background: linear-gradient(135deg, #0066CC 0%, #0099FF 100%);
+            color: white;
+        }
+
+        .btn-next:hover {
+            background: linear-gradient(135deg, #0055AA 0%, #0077DD 100%);
+            transform: translateY(-2px);
+        }
+
+        .btn-copy {
+            background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+            color: #0a0a1a;
+        }
+
+        .btn-copy:hover {
+            background: linear-gradient(135deg, #E6C200 0%, #E69500 100%);
+            transform: translateY(-2px);
+        }
+
+        .btn-like {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ff4757 100%);
+            color: white;
+        }
+
+        .btn-like.liked {
+            background: linear-gradient(135deg, #ff4757 0%, #ff3838 100%);
+        }
+
+        .btn-refresh {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color: white;
+        }
+
+        .btn-refresh:hover {
+            background: linear-gradient(135deg, #218838 0%, #1aa179 100%);
+            transform: translateY(-2px);
+        }
+
+        .api-info {
+            background: #fff3cd;
+            border: 2px solid #FFA500;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 20px;
+            font-size: 0.9em;
+        }
+
+        .api-info strong {
+            color: #856404;
+        }
+
+        /* ==================== КОЛОНКА 3 — ГОРОДА ==================== */
+        .cities-section {
+            margin-bottom: 25px;
+        }
+
+        .cities-section.visited {
+            border-bottom: 4px dashed #FFD700;
+            padding-bottom: 25px;
+        }
+
+        .city-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 15px;
+            margin: 8px 0;
+            background: linear-gradient(180deg, #f8f9fa 0%, #e9ecef 100%);
+            border-radius: 10px;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+
+        .city-item:hover {
+            background: linear-gradient(180deg, #e9ecef 0%, #dee2e6 100%);
+            transform: translateX(5px);
+            border-color: #0066CC;
+        }
+
+        .city-item input[type="checkbox"] {
+            width: 22px;
+            height: 22px;
+            cursor: pointer;
+            accent-color: #0066CC;
+        }
+
+        .city-item span {
+            flex: 1;
+            font-weight: 500;
+        }
+
+        .city-item .delete-btn {
+            background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+            color: white;
+            border: none;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1.1em;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            opacity: 0.7;
+        }
+
+        .city-item .delete-btn:hover {
+            opacity: 1;
+            transform: scale(1.15);
+            box-shadow: 0 3px 10px rgba(220,53,69,0.4);
+        }
+
+        .city-item.checked {
+            background: linear-gradient(180deg, #d4edda 0%, #c3e6cb 100%);
+            border-left: 5px solid #28a745;
+        }
+
+        .city-item.checked span {
+            text-decoration: line-through;
+            color: #6c757d;
+        }
+
+        .add-city-form {
+            display: flex;
+            gap: 12px;
+            margin-top: 18px;
+        }
+
+        .add-city-form input {
+            flex: 1;
+            padding: 12px 15px;
+            border: 3px solid #0066CC;
+            border-radius: 10px;
+            font-size: 1em;
+            transition: all 0.3s ease;
+        }
+
+        .add-city-form input:focus {
+            outline: none;
+            border-color: #FFD700;
+            box-shadow: 0 0 10px rgba(0,102,204,0.3);
+        }
+
+        .add-city-form button {
+            padding: 12px 25px;
+            background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 1.1em;
+            transition: all 0.3s ease;
+        }
+
+        .add-city-form button:hover {
+            background: linear-gradient(135deg, #E6C200 0%, #E69500 100%);
+            transform: scale(1.08);
+        }
+
+        .stats {
+            background: linear-gradient(135deg, #0066CC 0%, #0099FF 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+            margin-top: 25px;
+            box-shadow: 0 4px 15px rgba(0,102,204,0.4);
+        }
+
+        .stats .number {
+            font-size: 2.5em;
+            font-weight: bold;
+            color: #FFD700;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        /* ==================== ФОРУМ/КОММЕНТАРИИ ==================== */
+        .forum-section {
+            max-width: 1450px;
+            margin: 30px auto;
+            padding: 0 25px;
+        }
+
+        .forum-container {
+            background: #ffffff;
+            border-radius: 20px;
+            padding: 35px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.25);
+            border: 4px solid #FFD700;
+        }
+
+        .forum-container h2 {
+            color: #0066CC;
+            border-bottom: 4px solid #FFD700;
+            padding-bottom: 12px;
+            margin-bottom: 25px;
+            font-size: 1.6em;
+            text-align: center;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .comment-form {
+            background: linear-gradient(180deg, #f8f9fa 0%, #e9ecef 100%);
+            padding: 25px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            border: 3px solid #0066CC;
+        }
+
+        .comment-form h3 {
+            color: #1a1a3e;
+            margin-bottom: 15px;
+            font-size: 1.2em;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #0066CC;
+        }
+
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #0066CC;
+            border-radius: 10px;
+            font-size: 1em;
+            font-family: inherit;
+            transition: all 0.3s ease;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #FFD700;
+            box-shadow: 0 0 10px rgba(255,215,0,0.3);
+        }
+
+        .form-group textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+
+        .submit-btn {
+            background: linear-gradient(135deg, #0066CC 0%, #0099FF 100%);
+            color: white;
+            border: none;
+            padding: 14px 35px;
+            border-radius: 25px;
+            font-size: 1.1em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .submit-btn:hover {
+            background: linear-gradient(135deg, #0055AA 0%, #0077DD 100%);
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0,102,204,0.4);
+        }
+
+        .comments-list {
+            max-height: 500px;
+            overflow-y: auto;
+        }
+
+        .comment-item {
+            background: linear-gradient(180deg, #ffffff 0%, #f8f9fa 100%);
+            border: 2px solid #e9ecef;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 15px;
+            transition: all 0.3s ease;
+            border-left: 5px solid #0066CC;
+        }
+
+        .comment-item:hover {
+            border-left-color: #FFD700;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .comment-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+            padding-bottom: 10px;
+            border-bottom: 2px dashed #e9ecef;
+        }
+
+        .comment-author {
+            font-weight: bold;
+            color: #0066CC;
+            font-size: 1.1em;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .comment-author::before {
+            content: "👤";
+        }
+
+        .comment-date {
+            color: #6c757d;
+            font-size: 0.85em;
+        }
+
+        .comment-text {
+            color: #333;
+            line-height: 1.7;
+            white-space: pre-wrap;
+        }
+
+        .comment-delete {
+            background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.85em;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+        }
+
+        .comment-delete:hover {
+            background: linear-gradient(135deg, #c82333 0%, #bd2130 100%);
+            transform: scale(1.05);
+        }
+
+        .no-comments {
+            text-align: center;
+            color: #6c757d;
+            font-style: italic;
+            padding: 30px;
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+
+        .forum-notice {
+            background: #fff3cd;
+            border: 2px solid #FFA500;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 20px;
+            font-size: 0.9em;
+            color: #856404;
+        }
+
+        /* ==================== ПОДВАЛ ==================== */
+        footer {
+            background: linear-gradient(90deg, #0a0a1a 0%, #1a1a3e 50%, #0a0a1a 100%);
+            color: white;
+            text-align: center;
+            padding: 30px;
+            margin-top: 50px;
+            border-top: 5px solid #FFD700;
+        }
+
+        footer p {
+            margin: 8px 0;
+        }
+
+        footer .emoji {
+            font-size: 1.8em;
+            margin-bottom: 10px;
+        }
+
+        /* ==================== АДАПТИВНОСТЬ ==================== */
+        @media (max-width: 950px) {
+            .container {
+                flex-direction: column;
+            }
+            
+            .col-info, .col-jokes, .col-cities {
+                flex: none;
+                width: 100%;
+            }
+
+            header h1 {
+                font-size: 2.8em;
+                letter-spacing: 5px;
+            }
+
+            nav ul {
+                gap: 12px;
+            }
+
+            nav ul li a {
+                padding: 10px 18px;
+                font-size: 1em;
+            }
+        }
+
+        /* ==================== АНИМАЦИИ ==================== */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .column, .forum-container {
+            animation: fadeIn 0.7s ease-out;
+        }
+
+        .col-info { animation-delay: 0.1s; }
+        .col-jokes { animation-delay: 0.2s; }
+        .col-cities { animation-delay: 0.3s; }
+        .forum-container { animation-delay: 0.4s; }
+
+        /* Scrollbar styling */
+        ::-webkit-scrollbar {
+            width: 10px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(180deg, #0066CC 0%, #0099FF 100%);
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(180deg, #0055AA 0%, #0077DD 100%);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ==================== ШАПКА ==================== -->
+    <header>
+        <h1>👳‍ НБЦ 🔞</h1>
+        <p class="subtitle">НЕНАВИЖУ БЛЯДЬ ЦЫГАН</p>
+    </header>
+
+    <!-- ==================== МЕНЮ ==================== -->
+    <nav>
+        <ul>
+            <li><a href="#info">📋 О нас</a></li>
+            <li><a href="#jokes">😂 Анекдоты</a></li>
+            <li><a href="#cities">🌍 Города</a></li>
+            <li><a href="#forum">💬 Форум</a></li>
+            <li><a href="#gallery">📷 Галерея</a></li>
+            <li><a href="#contacts">📞 Контакты</a></li>
+        </ul>
+    </nav>
+
+    <!-- ==================== ОСНОВНОЙ КОНТЕНТ ==================== -->
+    <div class="container">
+        
+        <!-- КОЛОНКА 1: Информация об отряде -->
+        <div class="column col-info" id="info">
+            <h2>🎭 Наш Отряд</h2>
+            
+            <div class="squad-info">
+                <p><strong>🎯 Девиз:</strong><br>«Live fast, die young»</p>
+                <p><strong>📅 Основан:</strong><br>2024 год</p>
+                <p><strong>🚀 Дней без инцидентов:</strong> 53 <br></p>
+            </div>
+
+            <h3>👥 Состав отряда</h3>
+            <ul class="members-list">
+                <!-- ✏️ РЕДАКТИРУЙ ЗДЕСЬ СВОИХ ЛЮДЕЙ -->
+                <li>Ваня  [Екатеринбург]</li>
+                <li>Данил [Нягань]</li>
+                <li>Демон [Ханты-Мансийск]</li>
+                <li>Егор  [Екатеринбург]</li>
+                <li>Колян [Екатеринбург]</li>
+                <li>Арсен [Екатеринбург]</li>
+            </ul>
+
+            <div class="squad-info" style="margin-top: 25px; background: linear-gradient(135deg, #1a1a3e 0%, #2a2a5e 100%);">
+                <p><strong>🏆 Достижения:</strong></p>
+                <p>• 1 фильм снят</p>
+                <p>• 8 бутылок водки выпито</p>
+            </div>
+        </div>
+
+        <!-- КОЛОНКА 2: Анекдоты -->
+        <div class="column col-jokes" id="jokes">
+            <h2>😂 Анекдоты Дня</h2>
+            
+            <div class="joke-card" id="jokeDisplay">
+                <div class="joke-number" id="jokeNumber">1</div>
+                <p id="jokeText">Загрузка анекдота...</p>
+                <div class="joke-controls">
+                    <button class="btn-next" onclick="nextJoke()">🔄 Следующий</button>
+                    <button class="btn-copy" onclick="copyJoke()">📋 Копировать</button>
+                    <button class="btn-like" id="likeBtn" onclick="toggleLike()">❤️ Нравится</button>
+                </div>
+            </div>
+
+            <div class="joke-card">
+                <h3>📌 Избранные анекдоты</h3>
+                <div id="likedJokes">
+                    <p style="color: #666; font-style: italic;">Пока нет избранных. Жми «Нравится»!</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- КОЛОНКА 3: Города -->
+        <div class="column col-cities" id="cities">
+            <h2>🌍 Карта Путешествий</h2>
+
+            <!-- Посещённые города -->
+            <div class="cities-section visited">
+                <h3>✅ Посещённые города</h3>
+                <div id="visitedCities">
+
+                </div>
+            </div>
+
+            <!-- Города для посещения -->
+            <div class="cities-section">
+                <h3>📍 Планируем посетить</h3>
+                <div id="toVisitCities">
+
+                </div>
+
+                <!-- Форма добавления города -->
+                <div class="add-city-form">
+                    <input type="text" id="newCityInput" placeholder="Город, Страна...">
+                    <button onclick="addCity()">➕</button>
+                </div>
+            </div>
+
+            <!-- Статистика -->
+            <div class="stats">
+                <p>🌎 Всего городов</p>
+                <p class="number" id="totalCities">0</p>
+                <p>✅ Посещено: <span id="visitedCount">0</span></p>
+                <p>📍 В планах: <span id="toVisitCount">0</span></p>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- ==================== ФОРУМ/КОММЕНТАРИИ ==================== -->
+    <div class="forum-section" id="forum">
+        <div class="forum-container">
+            <h2>💬 Народный Форум</h2>
+
+            <!-- Форма добавления комментария -->
+            <div class="comment-form">
+                <h3>✍️ Оставить сообщение</h3>
+                <div class="form-group">
+                    <label for="commentName">Ваше имя:</label>
+                    <input type="text" id="commentName" placeholder="Как к вам обращаться?" maxlength="50">
+                </div>
+                <div class="form-group">
+                    <label for="commentText">Сообщение:</label>
+                    <textarea id="commentText" placeholder="Пишите что думаете..." maxlength="1000"></textarea>
+                </div>
+                <button class="submit-btn" onclick="addComment()">📤 Отправить</button>
+            </div>
+
+            <!-- Список комментариев -->
+            <div class="comments-list" id="commentsList">
+                <div class="no-comments">
+                    <p>🤔 Пока нет комментариев</p>
+                    <p>Будь первым кто напишет!</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== ПОДВАЛ ==================== -->
+    <footer id="contacts">
+        <p class="emoji">🎪 🚐 🌍 🍻</p>
+        <p><strong>НБЦ — Ненавижу Блядь Цыган</strong></p>
+        <p>© 1991 Все права защищены </p>
+        <p>Сделано за чекушку</p>
+    </footer>
+
+    <!-- ==================== JAVASCRIPT ==================== -->
+    <script>
+        // ==================== АНЕКДОТЫ ====================
+        let jokes = [
+            "— Алло, это полиция? У меня украли велосипед!\n— Где?\n— Да вот, у подъезда стоял.\n— А вы его пристёгивали?\n— Да я его еле дотащил!",
+            "Объявление: «Продам гараж. В гараже машина. В машине кот. Кот не продаётся».",
+            "— Пап, а почему ты всегда споришь с мамой?\n— Сынок, когда два человека спорят, тот, кто прав, должен помолчать.",
+            "Сидят два программиста. Один говорит:\n— Слушай, а ты знал, что 6 боится 7?\n— Почему?\n— Потому что 7 8 9!\nВторой молчит, потом говорит:\n— Ты вообще понимаешь, что сказал?\n— А что?\n— 7 съела 9. Это каннибализм!",
+            "— Доктор, у меня постоянно болит правый бок.\n— А вы пробовали не бить себя по нему?\n— Пробовал, но тогда болит левый!",
+            "Жена мужу:\n— Дорогой, ты меня любишь?\n— Конечно!\n— А докажи!\n— Ну... я же не ушёл к другой после того, как ты увидела мою зарплату.",
+            "— Мам, а откуда я взялся?\n— Из капусты.\n— А Петя?\n— А Петя из магазина.\n— Везёт же некоторым!",
+            "Студент перед экзаменом:\n— Господи, я так мало знаю, но так много надеюсь!",
+            "— Почему вы опоздали на работу?\n— Понимаете, я шёл и увидел знак «Осторожно, дети». Я замедлился...",
+            "Объявление в лифте: «Уважаемые жильцы! Не бросайте мусор в шахту лифта. Он не бездонный!»",
+            "— У вас есть работа для ленивых?\n— Да, но начинать надо вчера.",
+            "Заходит скелет в бар и говорит:\n— Мне кружку пива и швабру.",
+            "— Что делать если у вас украли тень?\n— Не переживайте, она ещё вернётся когда стемнеет.",
+            "Встречаются два друга:\n— Как жизнь?\n— Как в сказке!\n— Это хорошо?\n— Нет, это плохо. Чем дальше, тем страшнее.",
+            "— Алло, это служба поддержки?\n— Да.\n— У меня мышка не работает.\n— А вы её в розетку включили?",
+            "Жена отправляет мужа в магазин:\n— Купи хлеб. Если будут яйца — возьми 10.\nМуж возвращается с 10 буханками хлеба.\n— Почему так много?\n— Так яйца же были!",
+            "— Доктор, я буду жить?\n— А смысл?",
+            "На собеседовании:\n— Назовите ваши сильные стороны.\n— Я упорный.\n— Спасибо, мы вам перезвоним.\n— Я подожду.",
+            "— Почему программисты путают Хэллоуин и Рождество?\n— Потому что Oct 31 = Dec 25",
+            "Объявление: «Прополз кот. Приметы: полосатый, хвостатый. Очень голодный. Если увидите — не убегайте, он всё равно быстрее.»"
+        ];
+
+        let currentJokeIndex = 0;
+        let likedJokesList = [];
+
+        function loadJoke(index) {
+            document.getElementById('jokeText').innerText = jokes[index];
+            document.getElementById('jokeNumber').innerText = index + 1;
+        }
+
+        function nextJoke() {
+            currentJokeIndex = (currentJokeIndex + 1) % jokes.length;
+            loadJoke(currentJokeIndex);
+        }
+
+        function copyJoke() {
+            navigator.clipboard.writeText(jokes[currentJokeIndex]);
+            showNotification('Анекдот скопирован! 📋', 'success');
+        }
+
+        function toggleLike() {
+            const btn = document.getElementById('likeBtn');
+            
+            if (btn.classList.contains('liked')) {
+                btn.classList.remove('liked');
+                btn.innerText = '❤️ Нравится';
+                likedJokesList = likedJokesList.filter(j => j !== jokes[currentJokeIndex]);
+            } else {
+                btn.classList.add('liked');
+                btn.innerText = '💖 В избранном';
+                if (!likedJokesList.includes(jokes[currentJokeIndex])) {
+                    likedJokesList.push(jokes[currentJokeIndex]);
+                }
+            }
+            updateLikedJokes();
+            saveLikedJokes();
+        }
+
+        function updateLikedJokes() {
+            const container = document.getElementById('likedJokes');
+            if (likedJokesList.length === 0) {
+                container.innerHTML = '<p style="color: #666; font-style: italic;">Пока нет избранных. Жми «Нравится»!</p>';
+            } else {
+                container.innerHTML = likedJokesList.map((joke, i) => 
+                    `<div style="background: #f8f9fa; padding: 15px; margin: 10px 0; border-radius: 10px; border-left: 4px solid #FFD700;">
+                        <small style="color: #666;">#${i + 1}</small>
+                        <p style="margin: 8px 0 0 0; font-size: 0.98em; line-height: 1.7;">${joke}</p>
+                    </div>`
+                ).join('');
+            }
+        }
+
+        function saveLikedJokes() {
+            localStorage.setItem('nbc_likedJokes', JSON.stringify(likedJokesList));
+        }
+
+        function loadLikedJokes() {
+            const saved = localStorage.getItem('nbc_likedJokes');
+            if (saved) {
+                likedJokesList = JSON.parse(saved);
+                updateLikedJokes();
+            }
+        }
+
+        // Имитация загрузки новых анекдотов (для демонстрации)
+        function fetchJokes() {
+            showNotification('📡 Загрузка новых анекдотов...', 'info');
+            setTimeout(() => {
+                // Перемешиваем массив для эффекта "новых" анекдотов
+                jokes = jokes.sort(() => Math.random() - 0.5);
+                currentJokeIndex = 0;
+                loadJoke(0);
+                showNotification('✅ База анекдотов обновлена!', 'success');
+            }, 1500);
+        }
+
+        // ==================== ГОРОДА ====================
+        function toggleCity(checkbox) {
+            const cityItem = checkbox.parentElement;
+            const visitedContainer = document.getElementById('visitedCities');
+            const toVisitContainer = document.getElementById('toVisitCities');
+            
+            if (checkbox.checked) {
+                cityItem.classList.add('checked');
+                visitedContainer.appendChild(cityItem);
+            } else {
+                cityItem.classList.remove('checked');
+                toVisitContainer.appendChild(cityItem);
+            }
+            
+            updateStats();
+            saveCities();
+        }
+
+        function addCity() {
+            const input = document.getElementById('newCityInput');
+            const cityName = input.value.trim();
+            
+            if (cityName) {
+                const toVisitContainer = document.getElementById('toVisitCities');
+                const cityItem = document.createElement('div');
+                cityItem.className = 'city-item';
+                cityItem.innerHTML = `
+                    <input type="checkbox" onchange="toggleCity(this)">
+                    <span>${cityName}</span>
+                    <button class="delete-btn" onclick="deleteCity(this)">🗑️</button>
+                `;
+                toVisitContainer.appendChild(cityItem);
+                input.value = '';
+                updateStats();
+                saveCities();
+                showNotification('🌍 Город добавлен!', 'success');
+            }
+        }
+
+        function deleteCity(btn) {
+            const cityItem = btn.parentElement;
+            const cityName = cityItem.querySelector('span').innerText;
+            
+            if (confirm(`Удалить город "${cityName}"?`)) {
+                cityItem.remove();
+                updateStats();
+                saveCities();
+                showNotification('🗑️ Город удалён!', 'info');
+            }
+        }
+
+        function updateStats() {
+            const visited = document.querySelectorAll('#visitedCities .city-item').length;
+            const toVisit = document.querySelectorAll('#toVisitCities .city-item').length;
+            const total = visited + toVisit;
+            
+            document.getElementById('totalCities').innerText = total;
+            document.getElementById('visitedCount').innerText = visited;
+            document.getElementById('toVisitCount').innerText = toVisit;
+        }
+
+        function saveCities() {
+            const visited = [];
+            const toVisit = [];
+            
+            document.querySelectorAll('#visitedCities .city-item').forEach(item => {
+                const span = item.querySelector('span');
+                const checked = item.querySelector('input').checked;
+                visited.push({ name: span.innerText, checked });
+            });
+            
+            document.querySelectorAll('#toVisitCities .city-item').forEach(item => {
+                const span = item.querySelector('span');
+                toVisit.push(span.innerText);
+            });
+            
+            localStorage.setItem('nbc_visitedCities', JSON.stringify(visited));
+            localStorage.setItem('nbc_toVisitCities', JSON.stringify(toVisit));
+        }
+
+        function loadCities() {
+            const visited = JSON.parse(localStorage.getItem('nbc_visitedCities')) || [];
+            const toVisit = JSON.parse(localStorage.getItem('nbc_toVisitCities')) || [];
+            
+            const visitedContainer = document.getElementById('visitedCities');
+            const toVisitContainer = document.getElementById('toVisitCities');
+            
+            visitedContainer.innerHTML = '';
+            toVisitContainer.innerHTML = '';
+            
+            visited.forEach(city => {
+                const cityItem = document.createElement('div');
+                cityItem.className = `city-item ${city.checked ? 'checked' : ''}`;
+                cityItem.innerHTML = `
+                    <input type="checkbox" ${city.checked ? 'checked' : ''} onchange="toggleCity(this)">
+                    <span>${city.name}</span>
+                    <button class="delete-btn" onclick="deleteCity(this)">🗑️</button>
+                `;
+                visitedContainer.appendChild(cityItem);
+            });
+            
+            toVisit.forEach(city => {
+                const cityItem = document.createElement('div');
+                cityItem.className = 'city-item';
+                cityItem.innerHTML = `
+                    <input type="checkbox" onchange="toggleCity(this)">
+                    <span>${city}</span>
+                    <button class="delete-btn" onclick="deleteCity(this)">🗑️</button>
+                `;
+                toVisitContainer.appendChild(cityItem);
+            });
+            
+            updateStats();
+        }
+
+        // ==================== КОММЕНТАРИИ/ФОРУМ ====================
+        function addComment() {
+            const nameInput = document.getElementById('commentName');
+            const textInput = document.getElementById('commentText');
+            
+            const name = nameInput.value.trim() || 'Аноним';
+            const text = textInput.value.trim();
+            
+            if (!text) {
+                showNotification('⚠️ Введите текст сообщения!', 'error');
+                return;
+            }
+
+            const comment = {
+                id: Date.now(),
+                name: name,
+                text: text,
+                date: new Date().toLocaleString('ru-RU')
+            };
+
+            const comments = getComments();
+            comments.unshift(comment);
+            localStorage.setItem('nbc_comments', JSON.stringify(comments));
+
+            nameInput.value = '';
+            textInput.value = '';
+            
+            renderComments();
+            showNotification('✅ Сообщение отправлено!', 'success');
+        }
+
+        function getComments() {
+            const saved = localStorage.getItem('nbc_comments');
+            return saved ? JSON.parse(saved) : [];
+        }
+
+        function renderComments() {
+            const container = document.getElementById('commentsList');
+            const comments = getComments();
+
+            if (comments.length === 0) {
+                container.innerHTML = `
+                    <div class="no-comments">
+                        <p>🤔 Пока нет комментариев</p>
+                        <p>Будь первым кто напишет!</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = comments.map(comment => `
+                <div class="comment-item">
+                    <div class="comment-header">
+                        <span class="comment-author">${escapeHtml(comment.name)}</span>
+                        <span class="comment-date">${comment.date}</span>
+                    </div>
+                    <div class="comment-text">${escapeHtml(comment.text)}</div>
+                    <button class="comment-delete" onclick="deleteComment(${comment.id})">🗑️ Удалить</button>
+                </div>
+            `).join('');
+        }
+
+        function deleteComment(id) {
+            if (confirm('Удалить это сообщение?')) {
+                const comments = getComments().filter(c => c.id !== id);
+                localStorage.setItem('nbc_comments', JSON.stringify(comments));
+                renderComments();
+                showNotification('🗑️ Сообщение удалено!', 'info');
+            }
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // ==================== УВЕДОМЛЕНИЯ ====================
+        function showNotification(message, type = 'info') {
+            const colors = {
+                success: 'linear-gradient(135deg, #28a745 0%, #20c997 100%)',
+                error: 'linear-gradient(135deg, #dc3545 0%, #c82333 100%)',
+                info: 'linear-gradient(135deg, #0066CC 0%, #0099FF 100%)'
+            };
+
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: ${colors[type]};
+                color: white;
+                padding: 15px 25px;
+                border-radius: 10px;
+                font-weight: bold;
+                z-index: 10000;
+                box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+                animation: slideIn 0.3s ease;
+            `;
+            notification.innerText = message;
+            document.body.appendChild(notification);
+
+            setTimeout(() => {
+                notification.style.animation = 'slideOut 0.3s ease';
+                setTimeout(() => notification.remove(), 300);
+            }, 3000);
+        }
+
+        // Add animation styles
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes slideIn {
+                from { transform: translateX(100%); opacity: 0; }
+                to { transform: translateX(0); opacity: 1; }
+            }
+            @keyframes slideOut {
+                from { transform: translateX(0); opacity: 1; }
+                to { transform: translateX(100%); opacity: 0; }
+            }
+        `;
+        document.head.appendChild(style);
+
+        // ==================== ИНИЦИАЛИЗАЦИЯ ====================
+        document.addEventListener('DOMContentLoaded', function() {
+            loadJoke(0);
+            loadCities();
+            loadLikedJokes();
+            renderComments();
+            
+            document.getElementById('newCityInput').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') addCity();
+            });
+
+            document.getElementById('commentText').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter' && e.ctrlKey) addComment();
+            });
+        });
+    </script>
+</body>
+</html>
