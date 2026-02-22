@@ -3,7 +3,7 @@
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-app.js";
-  import { getFirestore, collection, addDoc, getDocs, query, orderBy, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-firestore.js";
+  import { getFirestore, collection, addDoc, getDocs, query, orderBy, deleteDoc, doc, onSnapshot, updateDoc } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-firestore.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyDtm97uLN6K4kykEGJ4lveGPgsDkb4CAl4",
@@ -62,6 +62,105 @@
 
   // Автозагрузка при старте
   document.addEventListener('DOMContentLoaded', renderComments);
+// ==================== ГОРОДА FIREBASE ====================
+
+// Добавление города
+window.addCity = async function() {
+    const input = document.getElementById('newCityInput');
+    const cityName = input.value.trim();
+    
+    if (!cityName) {
+        showNotification('⚠️ Введите название города!', 'error');
+        return;
+    }
+
+    try {
+        await addDoc(collection(db, "cities"), {
+            name: cityName,
+            visited: false,
+            date: new Date().toISOString()
+        });
+
+        input.value = '';
+        showNotification('🌍 Город добавлен!', 'success');
+    } catch (error) {
+        console.error('Ошибка:', error);
+        showNotification('❌ Ошибка: ' + error.message, 'error');
+    }
+};
+
+// Переключение статуса (посещён/не посещён)
+window.toggleCity = async function(checkbox, cityId) {
+    try {
+        await updateDoc(doc(db, "cities", cityId), {
+            visited: checkbox.checked
+        });
+        updateStats();
+    } catch (error) {
+        console.error('Ошибка:', error);
+        showNotification('❌ Ошибка обновления', 'error');
+    }
+};
+
+// Удаление города
+window.deleteCity = async function(cityId) {
+    if (!confirm('Удалить этот город?')) return;
+    
+    try {
+        await deleteDoc(doc(db, "cities", cityId));
+        showNotification('🗑️ Город удалён!', 'info');
+    } catch (error) {
+        console.error('Ошибка:', error);
+        showNotification('❌ Ошибка при удалении', 'error');
+    }
+};
+
+// Загрузка городов в реальном времени
+function loadCities() {
+    const q = query(collection(db, "cities"), orderBy("date", "desc"));
+    
+    onSnapshot(q, (snapshot) => {
+        const visitedContainer = document.getElementById('visitedCities');
+        const toVisitContainer = document.getElementById('toVisitCities');
+        
+        visitedContainer.innerHTML = '';
+        toVisitContainer.innerHTML = '';
+        
+        let visitedCount = 0;
+        let toVisitCount = 0;
+
+        snapshot.docs.forEach(docSnap => {
+            const city = docSnap.data();
+            const cityId = docSnap.id;
+            
+            const cityItem = document.createElement('div');
+            cityItem.className = `city-item ${city.visited ? 'checked' : ''}`;
+            cityItem.innerHTML = `
+                <input type="checkbox" ${city.visited ? 'checked' : ''} onchange="toggleCity(this, '${cityId}')">
+                <span>${escapeHtml(city.name)}</span>
+                <button class="delete-btn" onclick="deleteCity('${cityId}')">🗑️</button>
+            `;
+            
+            if (city.visited) {
+                visitedContainer.appendChild(cityItem);
+                visitedCount++;
+            } else {
+                toVisitContainer.appendChild(cityItem);
+                toVisitCount++;
+            }
+        });
+
+        // Обновляем статистику
+        document.getElementById('totalCities').innerText = visitedCount + toVisitCount;
+        document.getElementById('visitedCount').innerText = visitedCount;
+        document.getElementById('toVisitCount').innerText = toVisitCount;
+    }, (error) => {
+        console.error('Ошибка загрузки городов:', error);
+    });
+}
+
+// Автозагрузка при старте
+document.addEventListener('DOMContentLoaded', loadCities);
 </script>
 
 <head>
