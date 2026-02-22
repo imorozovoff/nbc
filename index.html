@@ -8,7 +8,6 @@
     <!-- ==================== СТИЛИ ==================== -->
     <style>
         :root {
-            /* Светлая тема (по умолчанию) */
             --bg-color: #F5F5F7;
             --sidebar-bg: #FFFFFF;
             --card-bg: #FFFFFF;
@@ -25,7 +24,6 @@
             --hover-bg: rgba(15, 60, 95, 0.05);
         }
 
-        /* Тёмная тема — гармоничная палитра */
         [data-theme="dark"] {
             --bg-color: #0D1117;
             --sidebar-bg: #161B22;
@@ -55,7 +53,6 @@
             transition: background 0.3s ease, color 0.3s ease;
         }
 
-        /* ==================== МАКЕТ ==================== */
         .layout {
             display: grid;
             grid-template-columns: 260px 1fr 280px;
@@ -65,7 +62,6 @@
             min-height: 100vh;
         }
 
-        /* ==================== ЛЕВАЯ КОЛОНКА ==================== */
         .sidebar-left {
             background: var(--sidebar-bg);
             padding: 25px 20px;
@@ -121,7 +117,7 @@
             color: white;
         }
 
-        /* ==================== ПЕРЕКЛЮЧАТЕЛЬ ТЕМЫ ==================== */
+        /* Переключатель темы */
         .theme-toggle {
             margin-top: 30px;
             padding: 15px;
@@ -182,7 +178,95 @@
             transform: translateX(24px);
         }
 
-        /* ==================== ЦЕНТРАЛЬНАЯ КОЛОНКА ==================== */
+        /* Авторизация */
+        .auth-section {
+            margin-top: 20px;
+            padding: 15px;
+            background: var(--hover-bg);
+            border-radius: 10px;
+        }
+
+        .auth-section.hidden {
+            display: none;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px;
+            background: var(--card-bg);
+            border-radius: 8px;
+            margin-bottom: 10px;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--primary-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+
+        .user-name {
+            flex: 1;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .btn-logout {
+            padding: 6px 12px;
+            font-size: 12px;
+            background: var(--danger-color);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        .auth-form input {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid var(--border-color);
+            border-radius: 7px;
+            background: var(--card-bg);
+            color: var(--text-main);
+            font-size: 13px;
+        }
+
+        .auth-form button {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 8px;
+            border: none;
+            border-radius: 7px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .btn-login {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .btn-register {
+            background: var(--success-color);
+            color: white;
+        }
+
+        .auth-toggle {
+            text-align: center;
+            font-size: 12px;
+            color: var(--text-secondary);
+            cursor: pointer;
+            text-decoration: underline;
+        }
+
         .main-content {
             padding: 30px 20px;
             max-width: 900px;
@@ -213,7 +297,6 @@
             color: var(--primary-color);
         }
 
-        /* ==================== УЧАСТНИКИ ==================== */
         .members-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
@@ -247,7 +330,6 @@
             color: var(--text-secondary);
         }
 
-        /* ==================== СТАТИСТИКА ==================== */
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
@@ -274,7 +356,6 @@
             margin-top: 6px;
         }
 
-        /* ==================== АНЕКДОТЫ ==================== */
         .joke-container {
             background: var(--bg-color);
             padding: 18px;
@@ -297,7 +378,6 @@
             align-items: center;
         }
 
-        /* ==================== СТРЕЛОЧКИ РЕЙТИНГА ==================== */
         .joke-rating {
             display: flex;
             align-items: center;
@@ -361,7 +441,6 @@
             text-align: center;
         }
 
-        /* ==================== ФОРМА ДОБАВЛЕНИЯ АНЕКДОТА ==================== */
         .add-joke-form {
             background: var(--bg-color);
             padding: 20px;
@@ -376,7 +455,6 @@
             margin-bottom: 12px;
         }
 
-        /* ==================== КНОПКИ ==================== */
         .btn {
             padding: 9px 16px;
             border: none;
@@ -431,7 +509,6 @@
             font-size: 13px;
         }
 
-        /* ==================== ФОРУМ ==================== */
         .form-group {
             margin-bottom: 14px;
         }
@@ -468,7 +545,6 @@
             min-height: 90px;
         }
 
-        /* ==================== ПРАВАЯ КОЛОНКА ==================== */
         .sidebar-right {
             padding: 30px 0;
             position: sticky;
@@ -525,7 +601,6 @@
             font-weight: 600;
         }
 
-        /* ==================== СПИСКИ ==================== */
         .item-list {
             list-style: none;
             max-height: 300px;
@@ -573,7 +648,6 @@
             color: var(--text-main);
         }
 
-        /* ==================== FOOTER ==================== */
         .footer {
             text-align: center;
             padding: 25px;
@@ -590,7 +664,92 @@
             font-size: 13px;
         }
 
-        /* ==================== АДАПТИВНОСТЬ ==================== */
+        /* Посты на стене */
+        .post-item {
+            background: var(--bg-color);
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            border-left: 3px solid var(--primary-color);
+        }
+
+        .post-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .post-author {
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+
+        .post-date {
+            font-size: 11px;
+            color: var(--text-secondary);
+        }
+
+        .post-content {
+            font-size: 14px;
+            line-height: 1.6;
+            margin-bottom: 10px;
+        }
+
+        .post-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        /* Чаты */
+        .chat-list {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .chat-item {
+            padding: 12px;
+            border-bottom: 1px solid var(--border-color);
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .chat-item:hover {
+            background: var(--hover-bg);
+        }
+
+        .chat-item.active {
+            background: var(--hover-bg);
+            border-left: 3px solid var(--primary-color);
+        }
+
+        .chat-window {
+            background: var(--bg-color);
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 15px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .message-item {
+            margin-bottom: 10px;
+            padding: 10px;
+            border-radius: 8px;
+            max-width: 80%;
+        }
+
+        .message-item.mine {
+            background: var(--primary-color);
+            color: white;
+            margin-left: auto;
+        }
+
+        .message-item.other {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+        }
+
         @media (max-width: 1200px) {
             .layout {
                 grid-template-columns: 240px 1fr;
@@ -629,7 +788,6 @@
             }
         }
 
-        /* ==================== СКРОЛЛБАР ==================== */
         ::-webkit-scrollbar {
             width: 6px;
         }
@@ -663,9 +821,34 @@
                 <li><a href="#jokes">Анекдоты</a></li>
                 <li><a href="#cities">Города</a></li>
                 <li><a href="#events">События</a></li>
+                <li><a href="#wall">Моя стена</a></li>
+                <li><a href="#messages">Сообщения</a></li>
                 <li><a href="#forum">Форум</a></li>
                 <li><a href="#contacts">Контакты</a></li>
             </ul>
+
+            <!-- Авторизация -->
+            <div class="auth-section" id="authSection">
+                <!-- Форма входа/регистрации -->
+                <div id="authForms">
+                    <div class="auth-form">
+                        <input type="email" id="authEmail" placeholder="Email">
+                        <input type="password" id="authPassword" placeholder="Пароль">
+                        <button class="btn-login" onclick="login()">Войти</button>
+                        <button class="btn-register" onclick="register()">Регистрация</button>
+                        <p class="auth-toggle" onclick="toggleAuthMode()">Нет аккаунта? Зарегистрироваться</p>
+                    </div>
+                </div>
+                
+                <!-- Информация о пользователе -->
+                <div id="userInfo" class="hidden">
+                    <div class="user-info">
+                        <div class="user-avatar" id="userAvatar">U</div>
+                        <div class="user-name" id="userName">User</div>
+                        <button class="btn-logout" onclick="logout()">Выйти</button>
+                    </div>
+                </div>
+            </div>
 
             <!-- Переключатель темы -->
             <div class="theme-toggle">
@@ -781,7 +964,6 @@
                     </div>
                 </div>
                 
-                <!-- Форма добавления анекдота -->
                 <div class="add-joke-form">
                     <h4>➕ Добавить свой анекдот</h4>
                     <form onsubmit="submitJoke(event)">
@@ -849,6 +1031,47 @@
                     <input type="text" id="event-input" placeholder="Название события...">
                     <input type="date" id="event-date" style="width: 140px;">
                     <button class="btn btn-primary btn-small" onclick="addEvent()">Создать</button>
+                </div>
+            </section>
+
+            <!-- Моя стена -->
+            <section class="card" id="wall">
+                <div class="card-header">
+                    <h2 class="card-title">📝 Моя стена</h2>
+                </div>
+                <div id="wallForm">
+                    <div class="form-group">
+                        <textarea id="postContent" class="form-textarea" placeholder="Что у вас нового?" required></textarea>
+                    </div>
+                    <button class="btn btn-primary" onclick="createPost()">📤 Опубликовать</button>
+                </div>
+                <div id="postsList" style="margin-top: 20px;">
+                    <p class="empty-state">Загрузка постов...</p>
+                </div>
+            </section>
+
+            <!-- Сообщения -->
+            <section class="card" id="messages">
+                <div class="card-header">
+                    <h2 class="card-title">💬 Сообщения</h2>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                    <div>
+                        <p style="font-size: 13px; font-weight: 600; margin-bottom: 10px;">Чаты</p>
+                        <div class="chat-list" id="chatList">
+                            <p class="empty-state">Загрузка...</p>
+                        </div>
+                    </div>
+                    <div>
+                        <p style="font-size: 13px; font-weight: 600; margin-bottom: 10px;">Диалог</p>
+                        <div class="chat-window" id="chatWindow">
+                            <p class="empty-state">Выберите чат</p>
+                        </div>
+                        <div class="add-form" style="margin-top: 10px;">
+                            <input type="text" id="messageInput" placeholder="Сообщение...">
+                            <button class="btn btn-primary btn-small" onclick="sendMessage()">➤</button>
+                        </div>
+                    </div>
                 </div>
             </section>
 
@@ -940,6 +1163,7 @@
         // ==================== FIREBASE ====================
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-app.js";
         import { getFirestore, collection, addDoc, getDocs, query, orderBy, deleteDoc, doc, onSnapshot, updateDoc, increment } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-firestore.js";
+        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-auth.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyDtm97uLN6K4kykEGJ4lveGPgsDkb4CAl4",
@@ -952,18 +1176,98 @@
 
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
+        const auth = getAuth(app);
+
+        let currentUser = null;
+
+        // ==================== АВТОРИЗАЦИЯ ====================
+        window.register = async function() {
+            const email = document.getElementById('authEmail').value;
+            const password = document.getElementById('authPassword').value;
+            
+            if (!email || !password) {
+                alert('Введите email и пароль!');
+                return;
+            }
+
+            try {
+                const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+                const user = userCredential.user;
+                
+                // Создаём профиль пользователя
+                await addDoc(collection(db, "users"), {
+                    uid: user.uid,
+                    email: user.email,
+                    displayName: user.email.split('@')[0],
+                    createdAt: new Date().toISOString()
+                });
+
+                alert('✅ Регистрация успешна!');
+            } catch (error) {
+                console.error('Ошибка:', error);
+                alert('❌ Ошибка: ' + error.message);
+            }
+        };
+
+        window.login = async function() {
+            const email = document.getElementById('authEmail').value;
+            const password = document.getElementById('authPassword').value;
+            
+            if (!email || !password) {
+                alert('Введите email и пароль!');
+                return;
+            }
+
+            try {
+                await signInWithEmailAndPassword(auth, email, password);
+                alert('✅ Вход успешен!');
+            } catch (error) {
+                console.error('Ошибка:', error);
+                alert('❌ Ошибка: ' + error.message);
+            }
+        };
+
+        window.logout = async function() {
+            try {
+                await signOut(auth);
+                alert('👋 Вы вышли из аккаунта');
+            } catch (error) {
+                console.error('Ошибка:', error);
+            }
+        };
+
+        // Отслеживание состояния авторизации
+        onAuthStateChanged(auth, (user) => {
+            currentUser = user;
+            const authForms = document.getElementById('authForms');
+            const userInfo = document.getElementById('userInfo');
+            
+            if (user) {
+                authForms.classList.add('hidden');
+                userInfo.classList.remove('hidden');
+                document.getElementById('userName').textContent = user.email.split('@')[0];
+                document.getElementById('userAvatar').textContent = user.email[0].toUpperCase();
+                loadPosts();
+                loadChats();
+            } else {
+                authForms.classList.remove('hidden');
+                userInfo.classList.add('hidden');
+            }
+        });
+
+        window.toggleAuthMode = function() {
+            alert('Переключение между входом и регистрацией будет добавлено');
+        };
 
         // ==================== ТЁМНАЯ ТЕМА ====================
         const themeToggle = document.getElementById('themeToggle');
         
-        // Загрузка сохранённой темы
         const savedTheme = localStorage.getItem('nbc_theme');
         if (savedTheme === 'dark') {
             document.documentElement.setAttribute('data-theme', 'dark');
             themeToggle.checked = true;
         }
 
-        // Переключение темы
         themeToggle.addEventListener('change', () => {
             if (themeToggle.checked) {
                 document.documentElement.setAttribute('data-theme', 'dark');
@@ -982,27 +1286,17 @@
             const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
             return diffDays;
         }
-        function calculateDayz() {
-            const startDate = new Date('2026-01-01');
-            const today = new Date();
-            const diffTime = Math.abs(today - startDate);
-            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-            return diffDays;
-        }
 
         function updateDaysCounter() {
             const days = calculateDays();
-            const dayz = calculateDayz();
             document.getElementById('days-counter').textContent = days;
-            document.getElementById('days-achievements').textContent = dayz;
+            document.getElementById('days-achievements').textContent = days;
             document.getElementById('sidebar-days').textContent = days;
         }
 
         // ==================== АНЕКДОТЫ FIREBASE ====================
         let currentJoke = null;
         let jokesList = [];
-
-        // Загрузка проголосовавших из localStorage (храним тип голоса: 'up', 'down', или null)
         let votedJokes = JSON.parse(localStorage.getItem('nbc_votedJokes')) || {};
 
         window.newJoke = function() {
@@ -1024,58 +1318,38 @@
             if (!currentJoke) return;
             
             const jokeId = currentJoke.id;
-            const currentVote = votedJokes[jokeId]; // 'up', 'down', или undefined
+            const currentVote = votedJokes[jokeId];
 
             try {
                 const jokeRef = doc(db, "jokes", jokeId);
                 
                 if (currentVote === type) {
-                    // Если голосует за тот же вариант → отменяем голос
                     if (type === 'up') {
-                        await updateDoc(jokeRef, {
-                            upvotes: increment(-1)
-                        });
+                        await updateDoc(jokeRef, { upvotes: increment(-1) });
                         delete votedJokes[jokeId];
                     } else {
-                        await updateDoc(jokeRef, {
-                            downvotes: increment(-1)
-                        });
+                        await updateDoc(jokeRef, { downvotes: increment(-1) });
                         delete votedJokes[jokeId];
                     }
                 } else if (currentVote) {
-                    // Если голосует за другой вариант → переключаем
                     if (type === 'up') {
-                        await updateDoc(jokeRef, {
-                            upvotes: increment(1),
-                            downvotes: increment(-1)
-                        });
+                        await updateDoc(jokeRef, { upvotes: increment(1), downvotes: increment(-1) });
                         votedJokes[jokeId] = 'up';
                     } else {
-                        await updateDoc(jokeRef, {
-                            upvotes: increment(-1),
-                            downvotes: increment(1)
-                        });
+                        await updateDoc(jokeRef, { upvotes: increment(-1), downvotes: increment(1) });
                         votedJokes[jokeId] = 'down';
                     }
                 } else {
-                    // Если голосует впервые
                     if (type === 'up') {
-                        await updateDoc(jokeRef, {
-                            upvotes: increment(1)
-                        });
+                        await updateDoc(jokeRef, { upvotes: increment(1) });
                         votedJokes[jokeId] = 'up';
                     } else {
-                        await updateDoc(jokeRef, {
-                            downvotes: increment(1)
-                        });
+                        await updateDoc(jokeRef, { downvotes: increment(1) });
                         votedJokes[jokeId] = 'down';
                     }
                 }
                 
-                // Сохраняем в localStorage
                 localStorage.setItem('nbc_votedJokes', JSON.stringify(votedJokes));
-                
-                // Визуально показываем голос
                 updateVoteButtons(votedJokes[jokeId]);
             } catch (error) {
                 console.error('Ошибка:', error);
@@ -1086,11 +1360,9 @@
             const btnUp = document.getElementById('btn-up');
             const btnDown = document.getElementById('btn-down');
             
-            // Сбрасываем оба
             btnUp.classList.remove('voted');
             btnDown.classList.remove('voted');
             
-            // Показываем активный
             if (voteType === 'up') {
                 btnUp.classList.add('voted');
             } else if (voteType === 'down') {
@@ -1104,7 +1376,6 @@
             document.getElementById('joke-upvotes').textContent = joke.upvotes || 0;
             document.getElementById('joke-downvotes').textContent = joke.downvotes || 0;
             
-            // Проверяем, голосовал ли за этот анекдот
             const jokeId = joke.id;
             updateVoteButtons(votedJokes[jokeId]);
         }
@@ -1179,9 +1450,7 @@
 
         window.moveCity = async function(cityId, visited) {
             try {
-                await updateDoc(doc(db, "cities", cityId), {
-                    visited: visited
-                });
+                await updateDoc(doc(db, "cities", cityId), { visited: visited });
             } catch (error) {
                 console.error('Ошибка:', error);
             }
@@ -1322,6 +1591,147 @@
                 console.error('Ошибка загрузки событий:', error);
             });
         }
+
+        // ==================== СТЕНА/ПОСТЫ ====================
+        window.createPost = async function() {
+            if (!currentUser) {
+                alert('⚠️ Войдите в аккаунт чтобы создавать посты!');
+                return;
+            }
+
+            const content = document.getElementById('postContent').value.trim();
+            if (!content) {
+                alert('Введите текст поста!');
+                return;
+            }
+
+            try {
+                await addDoc(collection(db, "posts"), {
+                    userId: currentUser.uid,
+                    author: currentUser.email.split('@')[0],
+                    content: content,
+                    likes: 0,
+                    createdAt: new Date().toISOString()
+                });
+                document.getElementById('postContent').value = '';
+                alert('✅ Пост опубликован!');
+            } catch (error) {
+                console.error('Ошибка:', error);
+                alert('❌ Ошибка создания поста');
+            }
+        };
+
+        function loadPosts() {
+            const q = query(collection(db, "posts"), orderBy("createdAt", "desc"));
+            
+            onSnapshot(q, (snapshot) => {
+                const postsList = document.getElementById('postsList');
+                
+                if (snapshot.empty) {
+                    postsList.innerHTML = '<p class="empty-state">Пока нет постов</p>';
+                    return;
+                }
+                
+                postsList.innerHTML = snapshot.docs.map(docSnap => {
+                    const post = docSnap.data();
+                    const date = new Date(post.createdAt).toLocaleString('ru-RU');
+                    return `
+                        <div class="post-item">
+                            <div class="post-header">
+                                <span class="post-author">👤 ${escapeHtml(post.author)}</span>
+                                <span class="post-date">${date}</span>
+                            </div>
+                            <div class="post-content">${escapeHtml(post.content)}</div>
+                            <div class="post-actions">
+                                <button class="btn btn-secondary btn-small">❤️ ${post.likes || 0}</button>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            });
+        }
+
+        // ==================== СООБЩЕНИЯ/ЧАТЫ ====================
+        let currentChatId = null;
+
+        function loadChats() {
+            if (!currentUser) return;
+
+            const q = query(collection(db, "chats"), orderBy("updatedAt", "desc"));
+            
+            onSnapshot(q, (snapshot) => {
+                const chatList = document.getElementById('chatList');
+                
+                if (snapshot.empty) {
+                    chatList.innerHTML = '<p class="empty-state">Нет чатов</p>';
+                    return;
+                }
+                
+                chatList.innerHTML = snapshot.docs.map(docSnap => {
+                    const chat = docSnap.data();
+                    const chatId = docSnap.id;
+                    return `
+                        <div class="chat-item" onclick="openChat('${chatId}')">
+                            <div style="font-weight: 600;">💬 Чат #${chatId.slice(0, 8)}</div>
+                            <div style="font-size: 11px; color: var(--text-secondary);">Обновлено: ${new Date(chat.updatedAt).toLocaleString('ru-RU')}</div>
+                        </div>
+                    `;
+                }).join('');
+            });
+        }
+
+        window.openChat = function(chatId) {
+            currentChatId = chatId;
+            const chatWindow = document.getElementById('chatWindow');
+            
+            const q = query(collection(db, "chats", chatId, "messages"), orderBy("timestamp", "asc"));
+            
+            onSnapshot(q, (snapshot) => {
+                if (snapshot.empty) {
+                    chatWindow.innerHTML = '<p class="empty-state">Нет сообщений</p>';
+                    return;
+                }
+                
+                chatWindow.innerHTML = snapshot.docs.map(docSnap => {
+                    const msg = docSnap.data();
+                    const isMine = msg.userId === currentUser?.uid;
+                    return `
+                        <div class="message-item ${isMine ? 'mine' : 'other'}">
+                            <div>${escapeHtml(msg.text)}</div>
+                            <div style="font-size: 10px; opacity: 0.7; margin-top: 4px;">${new Date(msg.timestamp).toLocaleTimeString('ru-RU')}</div>
+                        </div>
+                    `;
+                }).join('');
+                
+                chatWindow.scrollTop = chatWindow.scrollHeight;
+            });
+        };
+
+        window.sendMessage = async function() {
+            if (!currentUser || !currentChatId) {
+                alert('Выберите чат!');
+                return;
+            }
+
+            const text = document.getElementById('messageInput').value.trim();
+            if (!text) return;
+
+            try {
+                await addDoc(collection(db, "chats", currentChatId, "messages"), {
+                    userId: currentUser.uid,
+                    text: text,
+                    timestamp: new Date().toISOString()
+                });
+
+                await updateDoc(doc(db, "chats", currentChatId), {
+                    updatedAt: new Date().toISOString()
+                });
+
+                document.getElementById('messageInput').value = '';
+            } catch (error) {
+                console.error('Ошибка:', error);
+            }
+        };
 
         // ==================== ФОРУМ FIREBASE ====================
         window.submitMessage = async function(event) {
